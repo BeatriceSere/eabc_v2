@@ -487,7 +487,7 @@ def main(N_subgraphs,path,name,mu,lambda_,ngen,maxorder):
 
 if __name__ == "__main__":
     
-    path = "/home/luca/Documenti/Progetti/E-ABC_v2/eabc_v2/Datasets/IAM/Letter3/"
+    path = "/Users/giulialatini/eabc_v2/Datasets/IAM/Letter3/"
     name = "LetterH"
     N_subgraphs = 20
     ngen = 20
