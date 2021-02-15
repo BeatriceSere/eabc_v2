@@ -266,7 +266,7 @@ class eabc_Nested:
             c.append(a)
         
         return c
-    
+
     @staticmethod
     def varOr(population, toolbox, lambda_, idHistory,cxpb, mutpb):
         """Part of an evolutionary algorithm applying only the variation part

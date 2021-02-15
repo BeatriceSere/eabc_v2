@@ -3,8 +3,8 @@
 
 class Granule:
     
-    def __init__(self, Representative,
-                 DissimilarityMeasure,
+    def __init__(self, Representative=None,
+                 DissimilarityMeasure=None,
                  Fvalue = None,
                  cardinality = None,
                  avgDispersion = None,

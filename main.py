@@ -21,8 +21,8 @@ from eabc.extractors import randomwalk_restart
 from eabc.embeddings import SymbolicHistogram
 from eabc.extras.featureSelDE import FSsetup_DE,FSfitness_DE 
 from eabc.environments.nestedFS import eabc_Nested
-
-
+from eabc.granulators.granule import Granule
+from eabc.subalphabets.k_l_subalphabets import k_subalphabets, l_subalphabets
 def IAMreader(parser,path):
     
     delimiters = "_", "."      
@@ -50,7 +50,9 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
     expTRSet = subgraph_extr.decomposeGraphDataset(dataTR,maxOrder= maxorder)
     expVSSet = subgraph_extr.decomposeGraphDataset(dataVS,maxOrder= maxorder)
     expTSSet = subgraph_extr.decomposeGraphDataset(dataTS,maxOrder= maxorder)
-        
+    
+    
+    
     ##################
     # Evaluate the individuals with an invalid fitness
     DEBUG_FIXSUBGRAPH = False
@@ -92,9 +94,9 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
     #Log book
     LogAgents = {gen: {thisClass:[] for thisClass in classes} for gen in range(ngen+1)}
     LogPerf = {thisClass:[] for thisClass in classes}
-    
+    LogJ = []
     # Begin the generational process   
-    ClassAlphabets={thisClass:[] for thisClass in classes}
+    #ClassAlphabets={thisClass:[] for thisClass in classes}
     for gen in range(1, ngen + 1):
         
             print("Generation: {}".format(gen))
@@ -134,98 +136,142 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                 #Concatenate symbols if not empty
                 alphabets = sum(alphabets,[])
                 
+                ksubalphabets = k_subalphabets(alphabets,3)
+                print('ksubalphabets =', len(ksubalphabets))
+                print(ksubalphabets)
+                lsubalphabets = l_subalphabets(ksubalphabets,2)
+                print('lsubalphabets =', len(lsubalphabets)) #'len_l=', len(lsubalphabets[0]), len(lsubalphabets[1]), len(lsubalphabets[2]))
+                klsubalphabets = ksubalphabets + lsubalphabets 
+                #print('klsubalphabets =', len(klsubalphabets))
                 #Restart with previous symbols
-                thisGenClassAlphabet = alphabets + ClassAlphabets[swarmClass]
-                
-                embeddingStrategy = SymbolicHistogram(isSymbolDiss=True,isParallel=True)
-        
-                #Embedding with current symbols
-                embeddingStrategy.getSet(expTRSet, thisGenClassAlphabet)
-                TRembeddingMatrix = np.asarray(embeddingStrategy._embeddedSet)
-                TRpatternID = embeddingStrategy._embeddedIDs
-        
-                embeddingStrategy.getSet(expVSSet, thisGenClassAlphabet)
-                VSembeddingMatrix = np.asarray(embeddingStrategy._embeddedSet)
-                VSpatternID = embeddingStrategy._embeddedIDs        
-        
-                #Resorting matrix for consistency with dataset        
-                TRorderID = np.asarray([TRpatternID.index(x) for x in dataTR.indices])
-                VSorderID = np.asarray([VSpatternID.index(x) for x in dataVS.indices])        
-                TRMat = TRembeddingMatrix[TRorderID,:]
-                VSMat = VSembeddingMatrix[VSorderID,:]        
-                
-                #Relabeling swarmClass = 1 others = 0
-                TRlabels = (np.asarray(dataTR.labels)==swarmClass).astype(int)
-                VSlabels= (np.asarray(dataVS.labels)==swarmClass).astype(int)
-                
-                classifier = KNN()
-                classifier.fit(TRMat,TRlabels)
-                predictedVSLabels = classifier.predict(VSMat)
-                     
-
-                print("{},{}".format(len(VSlabels),len(predictedVSLabels)))
-                tn, fp, fn, tp = confusion_matrix(VSlabels, predictedVSLabels).ravel()
-                sensitivity = tp / (tp + fn)
-                specificity = tn / (tn + fp)
-                J = sensitivity + specificity - 1
-                J = (J + 1) / 2
-                #error_rate = 1 - J          
-                print("Informedness {} - class {} - alphabet = {}".format(J, swarmClass,len(thisGenClassAlphabet)))
+                #thisGenClassAlphabet = alphabets + ClassAlphabets[swarmClass]
+                sub_position = 0
+                for sub in klsubalphabets:
+                    embeddingStrategy = SymbolicHistogram(isSymbolDiss=True,isParallel=True)
+            
+                    #Embedding with current symbols
+                    embeddingStrategy.getSet(expTRSet, sub)
+                    TRembeddingMatrix = np.asarray(embeddingStrategy._embeddedSet)
+                    TRpatternID = embeddingStrategy._embeddedIDs
+            
+                    embeddingStrategy.getSet(expVSSet, sub)
+                    VSembeddingMatrix = np.asarray(embeddingStrategy._embeddedSet)
+                    VSpatternID = embeddingStrategy._embeddedIDs        
+            
+                    #Resorting matrix for consistency with dataset        
+                    TRorderID = np.asarray([TRpatternID.index(x) for x in dataTR.indices])
+                    VSorderID = np.asarray([VSpatternID.index(x) for x in dataVS.indices])        
+                    TRMat = TRembeddingMatrix[TRorderID,:]
+                    VSMat = VSembeddingMatrix[VSorderID,:]        
+                    
+                    #Relabeling swarmClass = 1 others = 0
+                    TRlabels = (np.asarray(dataTR.labels)==swarmClass).astype(int)
+                    VSlabels= (np.asarray(dataVS.labels)==swarmClass).astype(int)
+                    
+                    classifier = KNN()
+                    classifier.fit(TRMat,TRlabels)
+                    predictedVSLabels = classifier.predict(VSMat)
+                    
+                    #print(dataVS.labels,predictedVSLabels)     
+    
+                    print("{},{}".format(len(VSlabels),len(predictedVSLabels)))
+                    tn, fp, fn, tp = confusion_matrix(VSlabels, predictedVSLabels).ravel()
+                    sensitivity = tp / (tp + fn)
+                    specificity = tn / (tn + fp)
+                    J = sensitivity + specificity - 1
+                    J = (J + 1) / 2
+                    t = (sub_position,J)
+                    #print(t)
+                    LogJ.append(t)
+                    #error_rate = 1 - J 
+                    print(sub_position,'-th subalphabet')
+                    sub_position = sub_position + 1
+                    print("Informedness {} - class {} - alphabet = {}".format(J, swarmClass,len(sub)))
+                print(LogJ)
+                print(sorted(LogJ,key=lambda x: x[1],reverse=True))
+                k=len(ksubalphabets)# to evalutate
+                winning_alphabets = []
+                for i in range(k):
+                    print(klsubalphabets[LogJ[i][0]])
+                    winning_alphabets.append(klsubalphabets[LogJ[i][0]])
+                print(len(winning_alphabets))
                 
                 #Feature Selection                  
-                bounds_GA2, CXPB_GA2, MUTPB_GA2, DE_Pop = FSsetup_DE(len(thisGenClassAlphabet), -1)
+                #bounds_GA2, CXPB_GA2, MUTPB_GA2, DE_Pop = FSsetup_DE(len(thisGenClassAlphabet), -1)
                 
-                FS_inforDE= partial(FSfitness_DE,perfMetric = 'informedness')
-                TuningResults_GA2 = differential_evolution(FS_inforDE, bounds_GA2, 
-                                                           args=(TRMat,
-                                                                 VSMat, 
-                                                                 TRlabels, 
-                                                                 VSlabels),
-                                                                 maxiter=100, init=DE_Pop, 
-                                                                 recombination=CXPB_GA2,
-                                                                 mutation=MUTPB_GA2, 
-                                                                 workers=-1, 
-                                                                 polish=False, 
-                                                                 updating='deferred')
-                best_GA2 = [round(i) for i in TuningResults_GA2.x]
-                print("Selected {}/{} feature".format(sum(np.asarray(best_GA2)==1), len(best_GA2)))
+                #FS_inforDE= partial(FSfitness_DE,perfMetric = 'informedness')
+                #TuningResults_GA2 = differential_evolution(FS_inforDE, bounds_GA2, 
+                                                           #args=(TRMat,
+                                                                 #VSMat, 
+                                                                 #TRlabels, 
+                                                                 #VSlabels),
+                                                                 #maxiter=100, init=DE_Pop, 
+                                                                 #recombination=CXPB_GA2,
+                                                                 #mutation=MUTPB_GA2, 
+                                                                 #workers=-1, 
+                                                                 #polish=False, 
+                                                                 #updating='deferred')
+                #best_GA2 = [round(i) for i in TuningResults_GA2.x]
+                #print("Selected {}/{} feature".format(sum(np.asarray(best_GA2)==1), len(best_GA2)))
                 
                 #Embedding with best alphabet
-                mask = np.array(best_GA2,dtype=bool)
-                classifier.fit(TRMat[:, mask], TRlabels)
-                predictedVSmask=classifier.predict(VSMat[:, mask])
+                #mask = np.array(best_GA2,dtype=bool)
+                #classifier.fit(TRMat[:, mask], TRlabels)
+                #predictedVSmask=classifier.predict(VSMat[:, mask])
                 
-                tn, fp, fn, tp = confusion_matrix(VSlabels, predictedVSmask).ravel()
-                sensitivity = tp / (tp + fn)
-                specificity = tn / (tn + fp)
-                J = sensitivity + specificity - 1
-                J = (J + 1) / 2
+                #tn, fp, fn, tp = confusion_matrix(VSlabels, predictedVSmask).ravel()
+                #sensitivity = tp / (tp + fn)
+                #specificity = tn / (tn + fp)
+                #J = sensitivity + specificity - 1
+                #J = (J + 1) / 2
                 
-                print("Informedness with selected symbols: {}".format(J))
+                #print("Informedness with selected symbols: {}".format(J))
 
                 #Update class alphabet
-                ClassAlphabets[swarmClass]= np.asarray(thisGenClassAlphabet,dtype = object)[mask].tolist()
+                #ClassAlphabets[swarmClass]= np.asarray(thisGenClassAlphabet,dtype = object)[mask].tolist()
 
                 #Assign the final fitness to agents
                 fitnessesRewarded = list(fitnesses)
+                ##
+                Symbols=list(set(np.concatenate((np.array(winning_alphabets)))))
+                print('Symbols=', Symbols)
+                ##
                 ##For log
                 rewardLog = []
-                ##
+                qualityLog = []
+                position=0
                 for agent in range(len(pop)):
-                    
                     agentID = pop[agent].ID
-                    NagentSymbolsInModel  = len([sym for sym in ClassAlphabets[swarmClass] if sym.owner==agentID])
-
-                    reward = J*NagentSymbolsInModel/sum(np.asarray(best_GA2)==1)
+                    NagentSymbolsInModels=len([sym for sym in Symbols if sym.owner==agentID])
+                    print('Simbols for agent=', NagentSymbolsInModels)
+                    if NagentSymbolsInModels == 0:
+                        reward=0
+                    else:
+                        for winner in winning_alphabets:
+                                for sym in winner:
+                                    if sym.owner==agentID:
+                                        if LogJ[position][1] <= 0.5:
+                                            sym.quality = sym.quality-1
+                                        elif LogJ[position][1] >= 0.95:
+                                             sym.quality = sym.quality+10
+                                        else:
+                                             sym.quality = sym.quality+1
+                                position=position+1
+                        position=0
+                        for sym in Symbols:
+                            if sym.owner==agentID:
+                                qualityLog.append(sym.quality)
+                        reward = sum(qualityLog)/NagentSymbolsInModels
                     rewardLog.append(reward)
-                    
                     if DEBUG_FITNESS:
                         fitnessesRewarded[agent] = reward,
                     else:
-                        
-                        fitnessesRewarded[agent] = 0.5*(fitnesses[agent][0]+reward), #Equal weight
-                        #fitnessesRewarded[agent]=fitnesses[agent][0],
-                
+                        fitnessesRewarded[agent] = fitnesses[agent][0]+reward
+                    qualityLog = []
+                    print('fitness=', fitnessesRewarded[agent]) 
+    
+                    
+ 
                 if DEBUG_INDOCC:
                     fitmean = []
                 for ind, fit in zip(pop, fitnessesRewarded):
@@ -258,7 +304,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                 # Select the next generation population for the current swarm
                 population[swarmClass][:] = toolbox.select(pop, mu)
                 #Save Informedness for class and gen
-                LogPerf[swarmClass].append([J,sum(np.asarray(best_GA2)==1),len(best_GA2)])
+                ###LogPerf[swarmClass].append([J,sum(np.asarray(best_GA2)==1),len(best_GA2)])
                 
                 #Save population at g = gen
                 LogAgents[gen][swarmClass].append([pop,fitnesses,rewardLog,fitnessesRewarded])
@@ -286,35 +332,35 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
     VSMat = VSembeddingMatrix[VSorderID,:]        
 
     #Feature Selection                  
-    bounds_GA2, CXPB_GA2, MUTPB_GA2, DE_Pop = FSsetup_DE(len(ALPHABETS), -1)
-    FS_accDE= partial(FSfitness_DE,perfMetric = 'accuracy')
-    TuningResults_GA2 = differential_evolution(FS_accDE, bounds_GA2, 
-                                               args=(TRMat,
-                                                     VSMat, 
-                                                     dataTR.labels, 
-                                                     dataVS.labels),
-                                                     maxiter=100, init=DE_Pop, 
-                                                     recombination=CXPB_GA2,
-                                                     mutation=MUTPB_GA2, 
-                                                     workers=-1, 
-                                                     polish=False, 
-                                                     updating='deferred')
+    #bounds_GA2, CXPB_GA2, MUTPB_GA2, DE_Pop = FSsetup_DE(len(ALPHABETS), -1)
+    #FS_accDE= partial(FSfitness_DE,perfMetric = 'accuracy')
+    #TuningResults_GA2 = differential_evolution(FS_accDE, bounds_GA2, 
+    #                                           args=(TRMat,
+    #                                                 VSMat, 
+    #                                                 dataTR.labels, 
+    #                                                 dataVS.labels),
+    #                                                 maxiter=100, init=DE_Pop, 
+    #                                                 recombination=CXPB_GA2,
+    #                                                 mutation=MUTPB_GA2, 
+    #                                                 workers=-1, 
+    #                                                 polish=False, 
+    #                                                 updating='deferred')
     
-    best_GA2 = [round(i) for i in TuningResults_GA2.x]
-    print("Selected {}/{} feature".format(sum(np.asarray(best_GA2)==1), len(best_GA2)))
+    #best_GA2 = [round(i) for i in TuningResults_GA2.x]
+    #print("Selected {}/{} feature".format(sum(np.asarray(best_GA2)==1), len(best_GA2)))
     
     #Embedding with best alphabet
-    mask = np.array(best_GA2,dtype=bool)
+    #mask = np.array(best_GA2,dtype=bool)
     classifier = KNN()
-    classifier.fit(TRMat[:, mask], dataTR.labels)
-    predictedVSmask=classifier.predict(VSMat[:, mask])
+    classifier.fit(TRMat, dataTR.labels)
+    #predictedVSmask=classifier.predict(VSMat[:, mask])
     
-    accuracyVS = sum(predictedVSmask==np.asarray(dataVS.labels))/len(dataVS.labels)
-    print("Accuracy on VS with global alphabet: {}".format(accuracyVS))
+    #accuracyVS = sum(predictedVSmask==np.asarray(dataVS.labels))/len(dataVS.labels)
+    #print("Accuracy on VS with global alphabet: {}".format(accuracyVS))
 
     #Embedding TS with best alphabet
-    ALPHABET = np.asarray(ALPHABETS,dtype = object)[mask].tolist()
-    embeddingStrategy.getSet(expTSSet, ALPHABET)
+    #ALPHABET = np.asarray(ALPHABETS,dtype = object)[mask].tolist()
+    embeddingStrategy.getSet(expTSSet, ALPHABETS)
     TSembeddingMatrix = np.asarray(embeddingStrategy._embeddedSet)
     TSpatternID = embeddingStrategy._embeddedIDs   
     TSorderID = np.asarray([TSpatternID.index(x) for x in dataTS.indices]) 
@@ -335,7 +381,7 @@ if __name__ == "__main__":
     np.random.seed(seed)
     # Parameter setup
     # They should be setted by cmd line
-    path = "/home/luca/Documenti/Progetti/E-ABC_v2/eabc_v2/Datasets/IAM/Letter3/"
+    path = "/Users/giulialatini/eabc_v2/Datasets/IAM/Letter3/"
     name = "LetterH"
     # path = "/home/luca/Documenti/Progetti/E-ABC_v2/eabc_v2/Datasets/IAM/GREC/"
     # name = "GREC"  
