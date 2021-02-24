@@ -10,26 +10,26 @@ Created on Mon Jan 25 09:43:57 2021
 
 
 import random
-def k_subalphabets (alphabets,k):
+def k_subalphabets (alphabet,k):
     ksubalphabets=[]
     sum_quality=0
-    n=int(len(alphabets)/k)
-    for symb in alphabets:
+    n=int(len(alphabet)/k)
+    for symb in alphabet:
         sum_quality=symb.quality+sum_quality
     if sum_quality == 0:
         for _ in range(k):
-            ksub_set=set(random.choices(alphabets, weights =None, k=n))
+            ksub_set=set(random.choices(alphabet, weights =None, k=n))
             k_sub=list(ksub_set)
             ksubalphabets.append(k_sub)
     else:
         prob=[]
-        for symb in alphabets:
+        for symb in alphabet:
             prob.append(symb.quality/sum_quality)
         for i,n in enumerate(prob):
             if n==0:
                prob[i]=random.random()
         for _ in range(k):
-            ksub_set=set(random.choices(alphabets,weights =prob,k=n))
+            ksub_set=set(random.choices(alphabet,weights =prob,k=n))
             k_sub=list(ksub_set)
             ksubalphabets.append(k_sub)
     return(ksubalphabets)    
@@ -61,7 +61,10 @@ def l_subalphabets (subalphabets,l):
             alph_offsprings.append(alph_offspring)
         else:
             ind1 = random.choice(subalphabets)
-            del ind1[-1]
+            n1= random.randint(0, len(ind1))
+            del ind1[-n1]
+            n2= random.randint(0, len(ind1))
+            del ind1[n2]
             alph_offspring =ind1
             alph_offsprings.append(alph_offspring)
     return(alph_offsprings)       

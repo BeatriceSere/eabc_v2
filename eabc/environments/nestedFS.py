@@ -108,8 +108,15 @@ class eabc_Nested:
         #Assuming genes  [Q, 01bounded, ... ]
         sigma = sigmaQ+sigma01
         return tools.mutGaussian(ind, mu, sigma, indpb)
+    
+    @property
+    def classAgents(self):
+        return self._Class
+    @classAgents.setter
+    def classAgents(self, val):
+        self._Class = val
         
-    def fitness(self,args):    
+    def fitness(self,args):
         """
         
 
@@ -186,9 +193,11 @@ class eabc_Nested:
         fitness = f if not np.isnan(f) else 0
         
         ID = individual.ID
+        CLASS = individual.classAgents
         symbols = granulationStrategy.symbols
         for symbol in symbols:
-            symbol.owner = ID
+            symbol.owner = str(ID)+CLASS
+            
         
         return (fitness,), symbols
     
@@ -264,8 +273,12 @@ class eabc_Nested:
             a = agentCreator()
             a.ID = i
             c.append(a)
-        
         return c
+    
+
+
+    
+
 
     @staticmethod
     def varOr(population, toolbox, lambda_, idHistory,cxpb, mutpb):
