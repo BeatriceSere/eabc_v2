@@ -62,7 +62,7 @@ def l_subalphabets (subalphabets,l):
         else:
             ind1 = random.choice(subalphabets)
             n1= random.randint(0, len(ind1))
-            del ind1[-n1]
+            del ind1[n1]
             n2= random.randint(0, len(ind1))
             del ind1[n2]
             alph_offspring =ind1

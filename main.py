@@ -10,7 +10,7 @@ from functools import partial
 import copy
 
 from sklearn.neighbors import KNeighborsClassifier as KNN
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, multilabel_confusion_matrix
 from scipy.optimize import differential_evolution
 
 from Datasets.IAM import IamDotLoader
@@ -83,6 +83,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
             subgraphs = [subgraphsByclass[swarmClass] for _ in population[swarmClass]]
         else:
             subgraphs = [subgraph_extr.randomExtractDataset(classAwareTR, N_subgraphs) for _ in population[swarmClass]]
+            
         ##
 
 #        invalid_ind = [ind for ind in population[swarmClass] if not ind.fitness.valid]
@@ -96,15 +97,18 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
     LogPerf = {thisClass:[] for thisClass in classes}
     LogJ = []
     alphabet=[]
-    pop=[]
+    Log_alphabet={thisClass:[] for thisClass in classes}
     # Begin the generational process   
     #ClassAlphabets={thisClass:[] for thisClass in classes}
     for gen in range(1, ngen + 1):
-        
+            
+            
             print("Generation: {}".format(gen))
             
+            
+            
             for swarmClass in classes:
-                
+                #offspring = toolbox.varOr(population=population,toolbox=toolbox,lambda_=lambda_, idHistory=IDagentsHistory)
                 print("############")
                 #Generate the offspring: mutation OR crossover OR reproduce and individual as it is
                 #offspring = eabc_Nested.varOr(population[swarmClass], toolbox, lambda_, cxpb, mutpb)
@@ -115,20 +119,20 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                 classAwareTR = dataTR[thisClassPatternIDs.tolist()]
                 
                 #Select both old and offspring for evaluation in order to run agents
-                pop_i = population[swarmClass] + offspring
+                population[swarmClass] = population[swarmClass] + offspring
                 #Select class agent with a property 'classAgent' in environments->nestedFS
-                for agent in pop_i:
+                for agent in population[swarmClass]:
                     agent.classAgents=swarmClass
-                #print(agent.classAgents)
-                pop=pop+ pop_i
+                print(agent.classAgents)
+                
                 #Select pop number of buckets to be assigned to agents
                 if DEBUG_FIXSUBGRAPH:
-                    subgraphs = [subgraphsByclass[swarmClass] for _ in pop]
+                    subgraphs = [subgraphsByclass[swarmClass] for _ in population[swarmClass]]
                 else:
-                    subgraphs = [subgraph_extr.randomExtractDataset(classAwareTR, N_subgraphs) for _ in pop]
+                    subgraphs = [subgraph_extr.randomExtractDataset(classAwareTR, N_subgraphs) for _ in population[swarmClass]]
                 
                 #Run individual and return the partial fitness comp+card
-                fitnesses,alphabets = zip(*toolbox.map(toolbox.evaluate, zip(pop,subgraphs)))
+                fitnesses,alphabets = zip(*toolbox.map(toolbox.evaluate, zip(population[swarmClass],subgraphs)))
                 
                 #Generate IDs for agents that pushed symbols in class bucket
                 #E.g. idAgents       [ 0   0    1   1  1     2    -  3    .... ]
@@ -141,18 +145,18 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                 #             idAgents.append(i)
                 
                 #Concatenate symbols if not empty
-                alphabet = sum(alphabets,[]) +alphabet
+                alphabet = sum(alphabets,[]) + alphabet
+                Log_alphabet[swarmClass] = alphabet
             alphabet=list(set(alphabet))    
             ksubalphabets = k_subalphabets(alphabet,3)
             print('ksubalphabets =', len(ksubalphabets))
-            print(ksubalphabets)
             lsubalphabets = l_subalphabets(ksubalphabets,2)
             print('lsubalphabets =', len(lsubalphabets)) #'len_l=', len(lsubalphabets[0]), len(lsubalphabets[1]), len(lsubalphabets[2]))
             klsubalphabets = ksubalphabets + lsubalphabets 
-            #print('klsubalphabets =', len(klsubalphabets))
             #Restart with previous symbols
             #thisGenClassAlphabet = alphabets + ClassAlphabets[swarmClass]
-            sub_position = 0
+            sub_position = 0           
+            
             for sub in klsubalphabets:
                 embeddingStrategy = SymbolicHistogram(isSymbolDiss=True,isParallel=True)
         
@@ -172,112 +176,83 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                 VSMat = VSembeddingMatrix[VSorderID,:]        
                 
                 #Relabeling swarmClass = 1 others = 0
-                #TRlabels = (np.asarray(dataTR.labels)==swarmClass).astype(int)
-                #VSlabels= (np.asarray(dataVS.labels)==swarmClass).astype(int)
-                
+                TRlabels = np.array(dataTR.labels)
+                VSlabels = np.array(dataVS.labels)
+                #print(VSlabels)
                 classifier = KNN()
-                classifier.fit(TRMat,dataTR.labels)
+                classifier.fit(TRMat,TRlabels)
                 predictedVSLabels = classifier.predict(VSMat)
-                
+                #print(predictedVSLabels)
                 #print(dataVS.labels,predictedVSLabels)     
 
-                print("{},{}".format(len(dataTR.labels),len(predictedVSLabels)))
-                tn, fp, fn, tp = confusion_matrix((dataTR.labels).astype(int), predictedVSLabels).ravel()
-                sensitivity = tp / (tp + fn)
-                specificity = tn / (tn + fp)
-                J = sensitivity + specificity - 1
-                J = (J + 1) / 2
+                print("{},{}".format(len(VSlabels),len(predictedVSLabels)))
+                #sensitivity = tp / (tp + fn)
+                J = sum(predictedVSLabels==np.asarray(dataVS.labels))/len(dataVS.labels)
+                #specificity = tn / (tn + fp)
+                
+                #J = sensitivity + specificity - 1
+                #J = (J + 1) / 2
                 t = (sub_position,J)
                 #print(t)
                 LogJ.append(t)
                 #error_rate = 1 - J 
                 print(sub_position,'-th subalphabet')
                 sub_position = sub_position + 1
-                print("Informedness {} - class {} - alphabet = {}".format(J, swarmClass,len(sub)))
-            print(LogJ)
-            print(sorted(LogJ,key=lambda x: x[1],reverse=True))
+                print("Accuracy {} - alphabet = {}".format(J,len(sub)))
+            print(LogJ)   
+            LogJ.sort(key=lambda x: x[1],reverse=True)
             k=len(ksubalphabets)# to evalutate
             winning_alphabets = []
             for i in range(k):
-                print(klsubalphabets[LogJ[i][0]])
                 winning_alphabets.append(klsubalphabets[LogJ[i][0]])
             print(len(winning_alphabets))
             
-            #Feature Selection                  
-            #bounds_GA2, CXPB_GA2, MUTPB_GA2, DE_Pop = FSsetup_DE(len(thisGenClassAlphabet), -1)
-            
-            #FS_inforDE= partial(FSfitness_DE,perfMetric = 'informedness')
-            #TuningResults_GA2 = differential_evolution(FS_inforDE, bounds_GA2, 
-                                                       #args=(TRMat,
-                                                             #VSMat, 
-                                                             #TRlabels, 
-                                                             #VSlabels),
-                                                             #maxiter=100, init=DE_Pop, 
-                                                             #recombination=CXPB_GA2,
-                                                             #mutation=MUTPB_GA2, 
-                                                             #workers=-1, 
-                                                             #polish=False, 
-                                                             #updating='deferred')
-            #best_GA2 = [round(i) for i in TuningResults_GA2.x]
-            #print("Selected {}/{} feature".format(sum(np.asarray(best_GA2)==1), len(best_GA2)))
-            
-            #Embedding with best alphabet
-            #mask = np.array(best_GA2,dtype=bool)
-            #classifier.fit(TRMat[:, mask], TRlabels)
-            #predictedVSmask=classifier.predict(VSMat[:, mask])
-            
-            #tn, fp, fn, tp = confusion_matrix(VSlabels, predictedVSmask).ravel()
-            #sensitivity = tp / (tp + fn)
-            #specificity = tn / (tn + fp)
-            #J = sensitivity + specificity - 1
-            #J = (J + 1) / 2
-            
-            #print("Informedness with selected symbols: {}".format(J))
-
-            #Update class alphabet
-            #ClassAlphabets[swarmClass]= np.asarray(thisGenClassAlphabet,dtype = object)[mask].tolist()
 
             #Assign the final fitness to agents
             fitnessesRewarded = list(fitnesses)
             ##
             Symbols=list(set(np.concatenate((np.array(winning_alphabets)))))
-            print('Symbols=', Symbols)
             ##
             ##For log
+            
             rewardLog = []
             qualityLog = []
+            pop= []
             #position=0
-            for agent in range(len(pop)):
-                agentID = pop[agent].ID
-                classAgent= pop[agent].classAgents
-                NagentSymbolsInModels=len([sym for sym in Symbols if sym.owner==str(agentID)+classAgent])
-                print('Simbols for agent=', NagentSymbolsInModels)
-                if NagentSymbolsInModels == 0:
-                    reward=0
-                else:
-                    for position,winner in enumerate(winning_alphabets):
-                            for sym in winner:
-                                print(sym.owner)
-                                if sym.owner==str(agentID)+classAgent:
-                                    if LogJ[position][1] <= 0.5:
-                                        sym.quality = sym.quality-1
-                                    elif LogJ[position][1] >= 0.95:
-                                         sym.quality = sym.quality+10
-                                    else:
-                                         sym.quality = sym.quality+1
-                            #position=position+1
-                    #position=0
-                    for sym in Symbols:
-                        if sym.owner==str(agentID)+classAgent:
-                            qualityLog.append(sym.quality)
-                    reward = sum(qualityLog)/NagentSymbolsInModels
-                rewardLog.append(reward)
-                if DEBUG_FITNESS:
-                    fitnessesRewarded[agent] = reward,
-                else:
-                    fitnessesRewarded[agent] = fitnesses[agent][0]+reward
-                qualityLog = []
-                print('fitness=', fitnessesRewarded[agent]) 
+            for swarmClass in classes:               
+                for agent in range(len(population[swarmClass])):
+                    
+                    agentID = population[swarmClass][agent].ID
+                    classAgent= population[swarmClass][agent].classAgents
+                    NagentSymbolsInModels=len([sym for sym in Symbols if sym.owner==str(agentID)+classAgent])
+                    #print('Simbols for agent=', NagentSymbolsInModels)
+                    if NagentSymbolsInModels == 0:
+                        reward=0
+                    else:
+                        for position,winner in enumerate(winning_alphabets):
+                                for sym in winner:
+                                    #print(sym.owner)
+                                    if sym.owner==str(agentID)+classAgent:
+                                        if LogJ[position][1] <= 0.5:
+                                            sym.quality = sym.quality-1
+                                        elif LogJ[position][1] >= 0.95:
+                                             sym.quality = sym.quality+10
+                                        else:
+                                             sym.quality = sym.quality+1
+                                #position=position+1
+                        #position=0
+                        for sym in Symbols:
+                            if sym.owner==str(agentID)+classAgent:
+                                qualityLog.append(sym.quality)
+                        reward = sum(qualityLog)/NagentSymbolsInModels
+                    rewardLog.append(reward)
+                    if DEBUG_FITNESS:
+                        fitnessesRewarded[agent] = reward,
+                    else:
+                        fitnessesRewarded[agent] = fitnesses[agent][0]+reward
+                    qualityLog = []
+                    #print('fitness=', fitnessesRewarded[agent]) 
+                     
 
                 
  
@@ -311,15 +286,17 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
             ##
             
             # Select the next generation population for the current swarm
-            population[:] = toolbox.select(pop, mu)
+            for swarmClass in classes:
+                population[swarmClass] = toolbox.select(population[swarmClass], mu)
             #Save Informedness for class and gen
             ###LogPerf[swarmClass].append([J,sum(np.asarray(best_GA2)==1),len(best_GA2)])
             
             #Save population at g = gen
             #LogAgents[gen][swarmClass].append([pop,fitnesses,rewardLog,fitnessesRewarded])
-            
+            #print(Log_sym_quality)
             print("----------------------------")
-    
+            Log_sym_quality = {gen: {sym.owner:sym.quality for sym in Symbols} for gen in range(1,ngen+1)}
+            print(Log_sym_quality)
     print("Test phase")
     #Collect class alphabets and embeddeding TR,VS,TS with concatenated Alphabets
     ALPHABETS=[alphabets for alphabets in ClassAlphabets.values()]   
@@ -390,7 +367,7 @@ if __name__ == "__main__":
     np.random.seed(seed)
     # Parameter setup
     # They should be setted by cmd line
-    path = "/Users/giulialatini/eabc_v2/Datasets/IAM/Letter3/"
+    path ="/home/beatrice/eabc_v2/Datasets/IAM/Letter3/"
     name = "LetterH"
     # path = "/home/luca/Documenti/Progetti/E-ABC_v2/eabc_v2/Datasets/IAM/GREC/"
     # name = "GREC"  
@@ -423,9 +400,9 @@ if __name__ == "__main__":
         
     
     IAMreadergraph = partial(IAMreader,parser)
-    rawtr = graph_nxDataset(path+"Training/", name, reader = IAMreadergraph)[:50]
-    rawvs = graph_nxDataset(path+"Validation/", name, reader = IAMreadergraph)[:50]
-    rawts = graph_nxDataset(path+"Test/", name, reader = IAMreadergraph)[:50]
+    rawtr = graph_nxDataset(path+"Training/", name, reader = IAMreadergraph)[:10]
+    rawvs = graph_nxDataset(path+"Validation/", name, reader = IAMreadergraph)[:10]
+    rawts = graph_nxDataset(path+"Test/", name, reader = IAMreadergraph)[:10]
 
     ####
     if name == ('LetterH' or 'LetterM' or 'LetterL'):  
