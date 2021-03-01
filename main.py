@@ -373,8 +373,8 @@ if __name__ == "__main__":
     # name = "GREC"  
     # path = "/home/luca/Documenti/Progetti/E-ABC_v2/eabc_v2/Datasets/IAM/AIDS/"
     # name = "AIDS" 
-    N_subgraphs = 20
-    ngen = 10
+    N_subgraphs = 150
+    ngen = 50
     mu = 10
     lambda_= 50
     maxorder = 5
@@ -400,9 +400,9 @@ if __name__ == "__main__":
         
     
     IAMreadergraph = partial(IAMreader,parser)
-    rawtr = graph_nxDataset(path+"Training/", name, reader = IAMreadergraph)[:10]
-    rawvs = graph_nxDataset(path+"Validation/", name, reader = IAMreadergraph)[:10]
-    rawts = graph_nxDataset(path+"Test/", name, reader = IAMreadergraph)[:10]
+    rawtr = graph_nxDataset(path+"Training/", name, reader = IAMreadergraph)
+    rawvs = graph_nxDataset(path+"Validation/", name, reader = IAMreadergraph)
+    rawts = graph_nxDataset(path+"Test/", name, reader = IAMreadergraph)
 
     ####
     if name == ('LetterH' or 'LetterM' or 'LetterL'):  
