@@ -3,13 +3,28 @@
 """
 Created on Mon Jan 25 09:43:57 2021
 
-@author: giulialatini
+@author: giulialatini & beatriceserenellini
 """
-
-
-
-
 import random
+
+'''
+    k-subalphabets
+    --------------
+
+    Generation of k sub-alphabets choosing symbols from general alphabet containing the symbols
+    of all classes of the g-th generation. The probability of choosing one symbol over another
+    is linked to symbol quality.
+    
+    Special cases:
+        
+        - FIRST CICLE, all symbols have zero quality: in this case all symbols are chosen 
+        with the random probability;
+        
+        - SYMBOLS NEVER CHOSEN, therefore with a null quality: in this case these symbols 
+        are chosen with the random probability.
+    
+'''
+
 def k_subalphabets (alphabet,k):
     ksubalphabets=[]
     sum_quality=0
@@ -33,6 +48,25 @@ def k_subalphabets (alphabet,k):
             k_sub=list(ksub_set)
             ksubalphabets.append(k_sub)
     return(ksubalphabets)    
+
+'''
+    l-subalphabets
+    --------------
+
+   Generation of l sub-alphabets starting from the previously generated k. 
+   The creation of the l-alphabets takes place by carrying out the following 
+   operations on the k-alphabets:
+    
+        - UNION: union of two sub-alphabets, choosen randomly 
+        
+        - INTERSECTION: intersection of two sub-alphabets, choosen randomly 
+        
+        - CUT: deletion of two symbols of one of k-subalphabets , choosen randomly 
+            
+    The choice of an operation is random.
+    
+'''
+
 
 
 def l_subalphabets (subalphabets,l):

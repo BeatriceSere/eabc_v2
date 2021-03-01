@@ -53,7 +53,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
     
     
     
-    ##################
+    ####################################
     # Evaluate the individuals with an invalid fitness
     DEBUG_FIXSUBGRAPH = False
     DEBUG_FITNESS = False
@@ -66,6 +66,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
     if DEBUG_INDOCC:
         print("DEBUG REPEATED IND TRUE")        
     classes= dataTR.unique_labels()
+    
     #Initialize a dict of swarms - {key:label - value:deap popolution}
     population = {thisClass:toolbox.population(n=mu) for thisClass in classes}
     IDagentsHistory = {thisClass:[ind.ID for ind in population[thisClass]] for thisClass in classes}
@@ -82,85 +83,82 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
             subgraphsByclass[swarmClass] = subgraph_extr.randomExtractDataset(classAwareTR, N_subgraphs)
             subgraphs = [subgraphsByclass[swarmClass] for _ in population[swarmClass]]
         else:
-            subgraphs = [subgraph_extr.randomExtractDataset(classAwareTR, N_subgraphs) for _ in population[swarmClass]]
-            
-        ##
-
-#        invalid_ind = [ind for ind in population[swarmClass] if not ind.fitness.valid]
-#        fitnesses,symbols = zip(*toolbox.map(toolbox.evaluate, zip(invalid_ind,subgraphs)))
-
-        # for ind, fit in zip(invalid_ind, fitnesses):
-        #     ind.fitness.values = fit
-
-    #Log book
+            subgraphs = [subgraph_extr.randomExtractDataset(classAwareTR, N_subgraphs) for _ in population[swarmClass]]       
+    ####################################
+     
+    ################## BEGINNING OF GENERATIONS ##################    
+    # Log book
     LogAgents = {gen: {thisClass:[] for thisClass in classes} for gen in range(ngen+1)}
     LogPerf = {thisClass:[] for thisClass in classes}
-    LogJ = []
-    alphabet=[]
     Log_alphabet={thisClass:[] for thisClass in classes}
+    LogAccuracy = []
+    alphabet=[]
+    
     # Begin the generational process   
-    #ClassAlphabets={thisClass:[] for thisClass in classes}
     for gen in range(1, ngen + 1):
-            
-            
-            print("Generation: {}".format(gen))
-            
-            
+            print("######################## Generation: {} ########################".format(gen))
             
             for swarmClass in classes:
-                #offspring = toolbox.varOr(population=population,toolbox=toolbox,lambda_=lambda_, idHistory=IDagentsHistory)
                 print("############")
-                #Generate the offspring: mutation OR crossover OR reproduce and individual as it is
-                #offspring = eabc_Nested.varOr(population[swarmClass], toolbox, lambda_, cxpb, mutpb)
+                
+                # Generate the offspring: mutation OR crossover OR reproduce and individual as it is
                 offspring = toolbox.varOr(population=population[swarmClass],toolbox=toolbox,lambda_=lambda_, idHistory=IDagentsHistory[swarmClass])
                 
-                #Selecting data for this swarm               
+                # Selecting data for this swarm               
                 thisClassPatternIDs = np.where(np.asarray(dataTR.labels)==swarmClass)[0]
                 classAwareTR = dataTR[thisClassPatternIDs.tolist()]
                 
-                #Select both old and offspring for evaluation in order to run agents
+                # Select both old and offspring for evaluation in order to run agents
                 population[swarmClass] = population[swarmClass] + offspring
-                #Select class agent with a property 'classAgent' in environments->nestedFS
+                
+                # Select class agent with a property 'classAgent' in environments->nestedFS
                 for agent in population[swarmClass]:
                     agent.classAgents=swarmClass
-                print(agent.classAgents)
+                print('Loading class',agent.classAgents)
                 
-                #Select pop number of buckets to be assigned to agents
+                # Select pop number of buckets to be assigned to agents
                 if DEBUG_FIXSUBGRAPH:
                     subgraphs = [subgraphsByclass[swarmClass] for _ in population[swarmClass]]
                 else:
                     subgraphs = [subgraph_extr.randomExtractDataset(classAwareTR, N_subgraphs) for _ in population[swarmClass]]
                 
-                #Run individual and return the partial fitness comp+card
+                # Run individual and return the partial fitness comp+card
                 fitnesses,alphabets = zip(*toolbox.map(toolbox.evaluate, zip(population[swarmClass],subgraphs)))
                 
-                #Generate IDs for agents that pushed symbols in class bucket
-                #E.g. idAgents       [ 0   0    1   1  1     2    -  3    .... ]
-                #     alphabets      [[s1 s2] [ s3  s4 s5]  [s6] []  [s7] .... ]
-                #Identify the agent that push s_i symbol
-                # idAgents=[]
-                # for i in range(len(pop)):
-                #     if alphabets[i]:
-                #         for _ in range(len(alphabets[i])):
-                #             idAgents.append(i)
+                ''' Generate IDs for agents that pushed symbols in class bucket
+                    E.g. idAgents       [ 0   0    1   1  1     2    -  3    .... ]
+                         alphabets      [[s1 s2] [ s3  s4 s5]  [s6] []  [s7] .... ]
+                    Identify the agent that push s_i symbol
+                     idAgents=[]
+                     for i in range(len(pop)):
+                         if alphabets[i]:
+                             for _ in range(len(alphabets[i])):
+                                 idAgents.append(i)'''
                 
-                #Concatenate symbols if not empty
+                # Concatenate symbols if not empty
                 alphabet = sum(alphabets,[]) + alphabet
-                Log_alphabet[swarmClass] = alphabet
-            alphabet=list(set(alphabet))    
+                Log_alphabet[swarmClass] = alphabet 
+            alphabet=list(set(alphabet))
+            
+            # Generate k+l subalphabets
+            ### View k_l_subalphabets into eabc directory
+            print('########### SUBALPHABETS #############')
             ksubalphabets = k_subalphabets(alphabet,3)
             print('ksubalphabets =', len(ksubalphabets))
             lsubalphabets = l_subalphabets(ksubalphabets,2)
             print('lsubalphabets =', len(lsubalphabets)) #'len_l=', len(lsubalphabets[0]), len(lsubalphabets[1]), len(lsubalphabets[2]))
             klsubalphabets = ksubalphabets + lsubalphabets 
-            #Restart with previous symbols
-            #thisGenClassAlphabet = alphabets + ClassAlphabets[swarmClass]
-            sub_position = 0           
             
+            ##################
+            # Restart with previous symbols
+            #thisGenClassAlphabet = alphabets + ClassAlphabets[swarmClass]
+            ##################
+            
+            sub_position = 0           
             for sub in klsubalphabets:
                 embeddingStrategy = SymbolicHistogram(isSymbolDiss=True,isParallel=True)
         
-                #Embedding with current symbols
+                # Embedding with current symbols
                 embeddingStrategy.getSet(expTRSet, sub)
                 TRembeddingMatrix = np.asarray(embeddingStrategy._embeddedSet)
                 TRpatternID = embeddingStrategy._embeddedIDs
@@ -169,61 +167,64 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                 VSembeddingMatrix = np.asarray(embeddingStrategy._embeddedSet)
                 VSpatternID = embeddingStrategy._embeddedIDs        
         
-                #Resorting matrix for consistency with dataset        
+                # Resorting matrix for consistency with dataset        
                 TRorderID = np.asarray([TRpatternID.index(x) for x in dataTR.indices])
                 VSorderID = np.asarray([VSpatternID.index(x) for x in dataVS.indices])        
                 TRMat = TRembeddingMatrix[TRorderID,:]
                 VSMat = VSembeddingMatrix[VSorderID,:]        
                 
-                #Relabeling swarmClass = 1 others = 0
+                # Labels 
                 TRlabels = np.array(dataTR.labels)
-                VSlabels = np.array(dataVS.labels)
-                #print(VSlabels)
+                #VSlabels = np.array(dataVS.labels)
+                
+                # Classifier
                 classifier = KNN()
                 classifier.fit(TRMat,TRlabels)
                 predictedVSLabels = classifier.predict(VSMat)
+                #print(VSlabels)
                 #print(predictedVSLabels)
-                #print(dataVS.labels,predictedVSLabels)     
-
-                print("{},{}".format(len(VSlabels),len(predictedVSLabels)))
-                #sensitivity = tp / (tp + fn)
-                J = sum(predictedVSLabels==np.asarray(dataVS.labels))/len(dataVS.labels)
-                #specificity = tn / (tn + fp)
+                #print(dataVS.labels,predictedVSLabels) 
+                #print("{},{}".format(len(VSlabels),len(predictedVSLabels)))
                 
-                #J = sensitivity + specificity - 1
-                #J = (J + 1) / 2
-                t = (sub_position,J)
-                #print(t)
-                LogJ.append(t)
-                #error_rate = 1 - J 
+                # Model accuracy
+                accuracy = sum(predictedVSLabels==np.asarray(dataVS.labels))/len(dataVS.labels)
+                t = (sub_position,accuracy)
+                LogAccuracy.append(t)
                 print(sub_position,'-th subalphabet')
                 sub_position = sub_position + 1
-                print("Accuracy {} - alphabet = {}".format(J,len(sub)))
-            print(LogJ)   
-            LogJ.sort(key=lambda x: x[1],reverse=True)
-            k=len(ksubalphabets)# to evalutate
+                print("Accuracy {} - alphabet = {}".format(accuracy,len(sub)))
+            #print(LogAccuracy) 
+            
+            ##################
+            # Find the best subalphabets by evaluating the accuracy of the model
+            LogAccuracy.sort(key=lambda x: x[1],reverse=True)
+            k=len(ksubalphabets)
             winning_alphabets = []
             for i in range(k):
-                winning_alphabets.append(klsubalphabets[LogJ[i][0]])
-            print(len(winning_alphabets))
+                winning_alphabets.append(klsubalphabets[LogAccuracy[i][0]])
+            print('Length of the winning alphabets:',len(winning_alphabets))
+            ##################
             
-
-            #Assign the final fitness to agents
+            ################ REWARD ####################
+            print('###### REWARD ######')
+            # Assign the final fitness to agents
             fitnessesRewarded = list(fitnesses)
-            ##
-            Symbols=list(set(np.concatenate((np.array(winning_alphabets)))))
-            ##
-            ##For log
             
+            # Winners symbols
+            Symbols=list(set(np.concatenate((np.array(winning_alphabets)))))
+            
+            # Log book
             rewardLog = []
             qualityLog = []
             pop= []
-            #position=0
+            
             for swarmClass in classes:               
                 for agent in range(len(population[swarmClass])):
                     
+                    # ID and Class of each agent
                     agentID = population[swarmClass][agent].ID
                     classAgent= population[swarmClass][agent].classAgents
+                    
                     NagentSymbolsInModels=len([sym for sym in Symbols if sym.owner==str(agentID)+classAgent])
                     #print('Simbols for agent=', NagentSymbolsInModels)
                     if NagentSymbolsInModels == 0:
@@ -231,16 +232,13 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                     else:
                         for position,winner in enumerate(winning_alphabets):
                                 for sym in winner:
-                                    #print(sym.owner)
                                     if sym.owner==str(agentID)+classAgent:
-                                        if LogJ[position][1] <= 0.5:
+                                        if LogAccuracy[position][1] <= 0.4:
                                             sym.quality = sym.quality-1
-                                        elif LogJ[position][1] >= 0.95:
+                                        elif LogAccuracy[position][1] >= 0.85:
                                              sym.quality = sym.quality+10
                                         else:
                                              sym.quality = sym.quality+1
-                                #position=position+1
-                        #position=0
                         for sym in Symbols:
                             if sym.owner==str(agentID)+classAgent:
                                 qualityLog.append(sym.quality)
@@ -252,7 +250,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                         fitnessesRewarded[agent] = fitnesses[agent][0]+reward
                     qualityLog = []
                     #print('fitness=', fitnessesRewarded[agent]) 
-                     
+            ####################################        
 
                 
  
@@ -288,15 +286,17 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
             # Select the next generation population for the current swarm
             for swarmClass in classes:
                 population[swarmClass] = toolbox.select(population[swarmClass], mu)
-            #Save Informedness for class and gen
+                
+            # Save Informedness for class and gen
             ###LogPerf[swarmClass].append([J,sum(np.asarray(best_GA2)==1),len(best_GA2)])
             
-            #Save population at g = gen
+            # Save population at g = gen
             #LogAgents[gen][swarmClass].append([pop,fitnesses,rewardLog,fitnessesRewarded])
-            #print(Log_sym_quality)
-            print("----------------------------")
+            
+            
             Log_sym_quality = {gen: {sym.owner:sym.quality for sym in Symbols} for gen in range(1,ngen+1)}
-            print(Log_sym_quality)
+            #print(Log_sym_quality)
+            print("------------------------------------------------------------------")
     print("Test phase")
     #Collect class alphabets and embeddeding TR,VS,TS with concatenated Alphabets
     ALPHABETS=[alphabets for alphabets in ClassAlphabets.values()]   
@@ -367,7 +367,7 @@ if __name__ == "__main__":
     np.random.seed(seed)
     # Parameter setup
     # They should be setted by cmd line
-    path ="/home/beatrice/eabc_v2/Datasets/IAM/Letter3/"
+    path ="/home/LabRizzi/eabc_v2/Datasets/IAM/Letter3/"
     name = "LetterH"
     # path = "/home/luca/Documenti/Progetti/E-ABC_v2/eabc_v2/Datasets/IAM/GREC/"
     # name = "GREC"  
