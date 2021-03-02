@@ -198,9 +198,9 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
             ##################
             # Find the best subalphabets by evaluating the accuracy of the model
             LogAccuracy.sort(key=lambda x: x[1],reverse=True)
-            k=len(ksubalphabets)
+            kappa=len(ksubalphabets)
             winning_alphabets = []
-            for i in range(k):
+            for i in range(kappa):
                 winning_alphabets.append(klsubalphabets[LogAccuracy[i][0]])
             print('Length of the winning alphabets:',len(winning_alphabets))
             ##################
@@ -373,7 +373,7 @@ if __name__ == "__main__":
     # name = "GREC"  
     # path = "/home/luca/Documenti/Progetti/E-ABC_v2/eabc_v2/Datasets/IAM/AIDS/"
     # name = "AIDS" 
-    N_subgraphs = 150
+    N_subgraphs = 20
     ngen = 50
     mu = 10
     lambda_= 50

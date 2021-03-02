@@ -5,7 +5,7 @@ Created on Mon Jan 25 09:43:57 2021
 
 @author: giulialatini & beatriceserenellini
 """
-import random
+import random 
 
 '''
     k-subalphabets
@@ -25,14 +25,14 @@ import random
     
 '''
 
-def k_subalphabets (alphabet,k):
+def k_subalphabets (alphabet,kappa_subal):
     ksubalphabets=[]
     sum_quality=0
-    n=int(len(alphabet)/k)
+    n=int(len(alphabet)/kappa_subal)
     for symb in alphabet:
         sum_quality=symb.quality+sum_quality
     if sum_quality == 0:
-        for _ in range(k):
+        for _ in range(kappa_subal):
             ksub_set=set(random.choices(alphabet, weights =None, k=n))
             k_sub=list(ksub_set)
             ksubalphabets.append(k_sub)
@@ -40,10 +40,10 @@ def k_subalphabets (alphabet,k):
         prob=[]
         for symb in alphabet:
             prob.append(symb.quality/sum_quality)
-        for i,n in enumerate(prob):
-            if n==0:
-               prob[i]=random.random()
-        for _ in range(k):
+        for counter,value in enumerate(prob):
+            if value==0:
+               prob[counter]=random.random()
+        for _ in range(kappa_subal):
             ksub_set=set(random.choices(alphabet,weights =prob,k=n))
             k_sub=list(ksub_set)
             ksubalphabets.append(k_sub)
