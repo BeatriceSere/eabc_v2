@@ -233,7 +233,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                         for position,winner in enumerate(winning_alphabets):
                                 for sym in winner:
                                     if sym.owner==str(agentID)+classAgent:
-                                        if LogAccuracy[position][1] <= 0.4:
+                                        if LogAccuracy[position][1] <= 0.75:
                                             sym.quality = sym.quality-1
                                         elif LogAccuracy[position][1] >= 0.85:
                                              sym.quality = sym.quality+10
