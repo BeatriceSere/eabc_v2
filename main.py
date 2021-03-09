@@ -125,7 +125,6 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                 
                 # Run individual and return the partial fitness comp+card
                 fitnesses,alphabets = zip(*toolbox.map(toolbox.evaluate, zip(population[swarmClass],subgraphs)))
-                print(fitnesses)
                 ''' Generate IDs for agents that pushed symbols in class bucket
                     E.g. idAgents       [ 0   0    1   1  1     2    -  3    .... ]
                          alphabets      [[s1 s2] [ s3  s4 s5]  [s6] []  [s7] .... ]
@@ -238,12 +237,12 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                         for position,winner in enumerate(winning_alphabets):
                                 for sym in winner:
                                     if sym.owner==str(agentID)+classAgent:
-                                        if LogAccuracy[position][1] <= 0.4:
-                                            sym.quality = sym.quality-1
+                                        if LogAccuracy[position][1] <= 0.75:
+                                            sym.quality = sym.quality-10
                                         elif LogAccuracy[position][1] >= 0.85:
                                              sym.quality = sym.quality+10
                                         else:
-                                             sym.quality = sym.quality+1
+                                             sym.quality = sym.quality+5
                         for sym in Symbols:
                             if sym.owner==str(agentID)+classAgent:
                                 qualityLog.append(sym.quality)
