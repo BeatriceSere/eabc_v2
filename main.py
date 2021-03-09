@@ -233,7 +233,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                         for position,winner in enumerate(winning_alphabets):
                                 for sym in winner:
                                     if sym.owner==str(agentID)+classAgent:
-                                        if LogAccuracy[position][1] <= 0.75:
+                                        if LogAccuracy[position][1] <= 0.4:
                                             sym.quality = sym.quality-1
                                         elif LogAccuracy[position][1] >= 0.85:
                                              sym.quality = sym.quality+10
@@ -374,7 +374,7 @@ if __name__ == "__main__":
     # path = "/home/luca/Documenti/Progetti/E-ABC_v2/eabc_v2/Datasets/IAM/AIDS/"
     # name = "AIDS" 
     N_subgraphs = 20
-    ngen = 50
+    ngen = 15
     mu = 10
     lambda_= 50
     maxorder = 5
