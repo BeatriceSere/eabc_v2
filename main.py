@@ -202,6 +202,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
             ##################
             # Find the best subalphabets by evaluating the accuracy of the model
             LogAccuracy.sort(key=lambda x: x[1],reverse=True)
+            print(LogAccuracy[:3])
             kappa=len(ksubalphabets)
             winning_alphabets = []
             for i in range(kappa):
@@ -237,8 +238,9 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                         for position,winner in enumerate(winning_alphabets):
                                 for sym in winner:
                                     if sym.owner==str(agentID)+classAgent:
+                                        print('Prova',sym.owner)
                                         if LogAccuracy[position][1] <= 0.75:
-                                            sym.quality = sym.quality-10
+                                            sym.quality = sym.quality-5
                                         elif LogAccuracy[position][1] >= 0.85:
                                              sym.quality = sym.quality+10
                                         else:
@@ -252,7 +254,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                         fitnessesRewarded[agent] = reward,
                     else:
                         fitnessesRewarded[agent] = fitnesses[agent][0]+reward
-                        print(agentID,fitnessesRewarded[agent])
+                        #print(agentID,fitnessesRewarded[agent])
                     qualityLog = []
                     #print('fitness=', fitnessesRewarded[agent]) 
             ####################################        
