@@ -196,7 +196,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                 LogAccuracy.append(t)
                 print(sub_position,'-th subalphabet')
                 sub_position = sub_position + 1
-                #print("Accuracy {} - alphabet = {}".format(accuracy,len(sub)))
+                print("Accuracy {} - alphabet = {}".format(accuracy,len(sub)))
             #print(LogAccuracy) 
             
             ##################
