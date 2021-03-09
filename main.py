@@ -93,6 +93,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
     Log_alphabet={thisClass:[] for thisClass in classes}
     LogAccuracy = []
     alphabet=[]
+    number_agents=0;
     
     # Begin the generational process   
     for gen in range(1, ngen + 1):
@@ -124,7 +125,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                 
                 # Run individual and return the partial fitness comp+card
                 fitnesses,alphabets = zip(*toolbox.map(toolbox.evaluate, zip(population[swarmClass],subgraphs)))
-                
+                print(fitnesses)
                 ''' Generate IDs for agents that pushed symbols in class bucket
                     E.g. idAgents       [ 0   0    1   1  1     2    -  3    .... ]
                          alphabets      [[s1 s2] [ s3  s4 s5]  [s6] []  [s7] .... ]
@@ -139,6 +140,10 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                 alphabet = sum(alphabets,[]) + alphabet
                 Log_alphabet[swarmClass] = alphabet 
             alphabet=list(set(alphabet))
+            # Valuate number of agents
+            for swarmClass in classes:
+                number_agents= len(population[swarmClass])+number_agents
+            print('Number of agents:', number_agents)
             
             # Generate k+l subalphabets
             ### View k_l_subalphabets into eabc directory
@@ -192,7 +197,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                 LogAccuracy.append(t)
                 print(sub_position,'-th subalphabet')
                 sub_position = sub_position + 1
-                print("Accuracy {} - alphabet = {}".format(accuracy,len(sub)))
+                #print("Accuracy {} - alphabet = {}".format(accuracy,len(sub)))
             #print(LogAccuracy) 
             
             ##################
@@ -248,6 +253,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                         fitnessesRewarded[agent] = reward,
                     else:
                         fitnessesRewarded[agent] = fitnesses[agent][0]+reward
+                        print(agentID,fitnessesRewarded[agent])
                     qualityLog = []
                     #print('fitness=', fitnessesRewarded[agent]) 
             ####################################        
@@ -374,7 +380,7 @@ if __name__ == "__main__":
     # path = "/home/luca/Documenti/Progetti/E-ABC_v2/eabc_v2/Datasets/IAM/AIDS/"
     # name = "AIDS" 
     N_subgraphs = 20
-    ngen = 15
+    ngen = 10
     mu = 10
     lambda_= 50
     maxorder = 5
