@@ -91,12 +91,12 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
     LogAgents = {gen: {thisClass:[] for thisClass in classes} for gen in range(ngen+1)}
     LogPerf = {thisClass:[] for thisClass in classes}
     Log_alphabet={thisClass:[] for thisClass in classes}
-    LogAccuracy = []
     alphabet=[]
     number_agents=0;
     
     # Begin the generational process   
     for gen in range(1, ngen + 1):
+            LogAccuracy = []
             print("######################## Generation: {} ########################".format(gen))
             
             for swarmClass in classes:
