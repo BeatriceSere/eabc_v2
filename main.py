@@ -125,6 +125,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                 
                 # Run individual and return the partial fitness comp+card
                 fitnesses,alphabets = zip(*toolbox.map(toolbox.evaluate, zip(population[swarmClass],subgraphs)))
+                
                 ''' Generate IDs for agents that pushed symbols in class bucket
                     E.g. idAgents       [ 0   0    1   1  1     2    -  3    .... ]
                          alphabets      [[s1 s2] [ s3  s4 s5]  [s6] []  [s7] .... ]
@@ -137,6 +138,8 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                 
                 # Concatenate symbols if not empty
                 alphabet = sum(alphabets,[]) + alphabet
+                for symb in alphabet:
+                    symb.classSymb=swarmClass
                 Log_alphabet[swarmClass] = alphabet 
             alphabet=list(set(alphabet))
             # Valuate number of agents
@@ -147,7 +150,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
             # Generate k+l subalphabets
             ### View k_l_subalphabets into eabc directory
             print('########### SUBALPHABETS #############')
-            ksubalphabets = k_subalphabets(alphabet,3)
+            ksubalphabets = k_subalphabets(alphabet,3,classes,Log_alphabet)
             print('ksubalphabets =', len(ksubalphabets))
             lsubalphabets = l_subalphabets(ksubalphabets,2)
             print('lsubalphabets =', len(lsubalphabets)) #'len_l=', len(lsubalphabets[0]), len(lsubalphabets[1]), len(lsubalphabets[2]))
@@ -238,7 +241,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                         for position,winner in enumerate(winning_alphabets):
                                 for sym in winner:
                                     if sym.owner==str(agentID)+classAgent:
-                                        print('Prova',sym.owner)
+                                        #print('Prova',sym.owner)
                                         if LogAccuracy[position][1] <= 0.75:
                                             sym.quality = sym.quality-5
                                         elif LogAccuracy[position][1] >= 0.85:
@@ -374,7 +377,8 @@ if __name__ == "__main__":
     np.random.seed(seed)
     # Parameter setup
     # They should be setted by cmd line
-    path ="/home/LabRizzi/eabc_v2/Datasets/IAM/Letter3/"
+    #path ="/home/LabRizzi/eabc_v2/Datasets/IAM/Letter3/"
+    path ="/Users/giulialatini/eabc_v2/Datasets/IAM/Letter3/"
     name = "LetterH"
     # path = "/home/luca/Documenti/Progetti/E-ABC_v2/eabc_v2/Datasets/IAM/GREC/"
     # name = "GREC"  
@@ -407,9 +411,9 @@ if __name__ == "__main__":
         
     
     IAMreadergraph = partial(IAMreader,parser)
-    rawtr = graph_nxDataset(path+"Training/", name, reader = IAMreadergraph)
-    rawvs = graph_nxDataset(path+"Validation/", name, reader = IAMreadergraph)
-    rawts = graph_nxDataset(path+"Test/", name, reader = IAMreadergraph)
+    rawtr = graph_nxDataset(path+"Training/", name, reader = IAMreadergraph)[:10]
+    rawvs = graph_nxDataset(path+"Validation/", name, reader = IAMreadergraph)[:10]
+    rawts = graph_nxDataset(path+"Test/", name, reader = IAMreadergraph)[:10]
 
     ####
     if name == ('LetterH' or 'LetterM' or 'LetterL'):  

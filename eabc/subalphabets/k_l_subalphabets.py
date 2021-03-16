@@ -5,8 +5,8 @@ Created on Mon Jan 25 09:43:57 2021
 
 @author: giulialatini & beatriceserenellini
 """
-import random 
 
+import random 
 '''
     k-subalphabets
     --------------
@@ -17,7 +17,7 @@ import random
     
     Special cases:
         
-        - FIRST CICLE, all symbols have zero quality: in this case all symbols are chosen 
+        - FIRST CYCLE, all symbols have zero quality: in this case all symbols are chosen 
         with the random probability;
         
         - SYMBOLS NEVER CHOSEN, therefore with a null quality: in this case these symbols 
@@ -25,7 +25,7 @@ import random
     
 '''
 
-def k_subalphabets (alphabet,kappa_subal):
+def k_subalphabets (alphabet,kappa_subal,classes,Log_alphabet):
     ksubalphabets=[]
     sum_quality=0
     n=int(len(alphabet)/kappa_subal)
@@ -35,8 +35,13 @@ def k_subalphabets (alphabet,kappa_subal):
         for _ in range(kappa_subal):
             ksub_set=set(random.choices(alphabet, weights =None, k=n))
             k_sub=list(ksub_set)
+            for swarmClass in classes:
+                number_symbols_class=len([sym for sym in k_sub if sym.classSymb==swarmClass])
+                if number_symbols_class==0:
+                    print('prova')
+                    k_sub.append(Log_alphabet[swarmClass][1])
             ksubalphabets.append(k_sub)
-    else:
+    else:   
         prob=[]
         for symb in alphabet:
             prob.append(symb.quality/sum_quality)
@@ -46,7 +51,13 @@ def k_subalphabets (alphabet,kappa_subal):
         for _ in range(kappa_subal):
             ksub_set=set(random.choices(alphabet,weights =prob,k=n))
             k_sub=list(ksub_set)
+            for swarmClass in classes:
+                number_symbols_class=len([sym for sym in k_sub if sym.classSymb==swarmClass])
+                if number_symbols_class==0:
+                    print('prova')
+                    k_sub.append(Log_alphabet[swarmClass][1])
             ksubalphabets.append(k_sub)
+            
     return(ksubalphabets)    
 
 '''
