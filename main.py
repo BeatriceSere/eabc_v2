@@ -137,10 +137,11 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                                  idAgents.append(i)'''
                 
                 # Concatenate symbols if not empty
+                for s in sum(alphabets,[]):
+                    s.classSymb=swarmClass
                 alphabet = sum(alphabets,[]) + alphabet
-                for symb in alphabet:
-                    symb.classSymb=swarmClass
                 Log_alphabet[swarmClass] = alphabet 
+                
             alphabet=list(set(alphabet))
             # Valuate number of agents
             for swarmClass in classes:

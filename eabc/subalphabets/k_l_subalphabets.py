@@ -35,11 +35,13 @@ def k_subalphabets (alphabet,kappa_subal,classes,Log_alphabet):
         for _ in range(kappa_subal):
             ksub_set=set(random.choices(alphabet, weights =None, k=n))
             k_sub=list(ksub_set)
+            for s in k_sub:
+                print(s.classSymb)
             for swarmClass in classes:
                 number_symbols_class=len([sym for sym in k_sub if sym.classSymb==swarmClass])
                 if number_symbols_class==0:
                     print('prova')
-                    k_sub.append(Log_alphabet[swarmClass][1])
+                    k_sub.append(Log_alphabet[swarmClass][0])
             ksubalphabets.append(k_sub)
     else:   
         prob=[]
@@ -55,7 +57,7 @@ def k_subalphabets (alphabet,kappa_subal,classes,Log_alphabet):
                 number_symbols_class=len([sym for sym in k_sub if sym.classSymb==swarmClass])
                 if number_symbols_class==0:
                     print('prova')
-                    k_sub.append(Log_alphabet[swarmClass][1])
+                    k_sub.append(Log_alphabet[swarmClass][0])
             ksubalphabets.append(k_sub)
             
     return(ksubalphabets)    
