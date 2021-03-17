@@ -92,6 +92,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
     LogPerf = {thisClass:[] for thisClass in classes}
     Log_alphabet={thisClass:[] for thisClass in classes}
     alphabet=[]
+    Log_Alphabets_Test=[]
     number_agents=0;
     
     # Begin the generational process   
@@ -146,6 +147,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
             # Valuate number of agents
             for swarmClass in classes:
                 number_agents= len(population[swarmClass])+number_agents
+            print('-----------------')
             print('Number of agents:', number_agents)
             
             # Generate k+l subalphabets
@@ -156,7 +158,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
             lsubalphabets = l_subalphabets(ksubalphabets,2)
             print('lsubalphabets =', len(lsubalphabets)) #'len_l=', len(lsubalphabets[0]), len(lsubalphabets[1]), len(lsubalphabets[2]))
             klsubalphabets = ksubalphabets + lsubalphabets 
-            
+            print('kl',klsubalphabets)
             ##################
             # Restart with previous symbols
             #thisGenClassAlphabet = alphabets + ClassAlphabets[swarmClass]
@@ -211,7 +213,10 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
             winning_alphabets = []
             for i in range(kappa):
                 winning_alphabets.append(klsubalphabets[LogAccuracy[i][0]])
+            Log_Alphabets_Test.append(winning_alphabets[0])
             print('Length of the winning alphabets:',len(winning_alphabets))
+            print('win',winning_alphabets)
+            
             ##################
             
             ################ REWARD ####################
@@ -305,70 +310,70 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
             #LogAgents[gen][swarmClass].append([pop,fitnesses,rewardLog,fitnessesRewarded])
             
             
-            Log_sym_quality = {gen: {sym.owner:sym.quality for sym in Symbols} for gen in range(1,ngen+1)}
+            #Log_sym_quality = {gen: {sym.owner:sym.quality for sym in Symbols} for gen in range(1,ngen+1)}
             #print(Log_sym_quality)
             print("------------------------------------------------------------------")
     print("Test phase")
-    #Collect class alphabets and embeddeding TR,VS,TS with concatenated Alphabets
-    ALPHABETS=[alphabets for alphabets in ClassAlphabets.values()]   
-    ALPHABETS = sum(ALPHABETS,[])
     
-    embeddingStrategy.getSet(expTRSet, ALPHABETS)
-    TRembeddingMatrix = np.asarray(embeddingStrategy._embeddedSet)
-    TRpatternID = embeddingStrategy._embeddedIDs
-
-    embeddingStrategy.getSet(expVSSet, ALPHABETS)
-    VSembeddingMatrix = np.asarray(embeddingStrategy._embeddedSet)
-    VSpatternID = embeddingStrategy._embeddedIDs
-
-    #Resorting matrix for consistency with dataset        
-    TRorderID = np.asarray([TRpatternID.index(x) for x in dataTR.indices])
-    VSorderID = np.asarray([VSpatternID.index(x) for x in dataVS.indices])   
-
-    TRMat = TRembeddingMatrix[TRorderID,:]
-    VSMat = VSembeddingMatrix[VSorderID,:]        
-
-    #Feature Selection                  
-    #bounds_GA2, CXPB_GA2, MUTPB_GA2, DE_Pop = FSsetup_DE(len(ALPHABETS), -1)
-    #FS_accDE= partial(FSfitness_DE,perfMetric = 'accuracy')
-    #TuningResults_GA2 = differential_evolution(FS_accDE, bounds_GA2, 
-    #                                           args=(TRMat,
-    #                                                 VSMat, 
-    #                                                 dataTR.labels, 
-    #                                                 dataVS.labels),
-    #                                                 maxiter=100, init=DE_Pop, 
-    #                                                 recombination=CXPB_GA2,
-    #                                                 mutation=MUTPB_GA2, 
-    #                                                 workers=-1, 
-    #                                                 polish=False, 
-    #                                                 updating='deferred')
+    for ALPHABETS in Log_Alphabets_Test:
     
-    #best_GA2 = [round(i) for i in TuningResults_GA2.x]
-    #print("Selected {}/{} feature".format(sum(np.asarray(best_GA2)==1), len(best_GA2)))
     
-    #Embedding with best alphabet
-    #mask = np.array(best_GA2,dtype=bool)
-    classifier = KNN()
-    classifier.fit(TRMat, dataTR.labels)
-    #predictedVSmask=classifier.predict(VSMat[:, mask])
+        embeddingStrategy.getSet(expTRSet, ALPHABETS)
+        TRembeddingMatrix = np.asarray(embeddingStrategy._embeddedSet)
+        TRpatternID = embeddingStrategy._embeddedIDs
     
-    #accuracyVS = sum(predictedVSmask==np.asarray(dataVS.labels))/len(dataVS.labels)
-    #print("Accuracy on VS with global alphabet: {}".format(accuracyVS))
-
-    #Embedding TS with best alphabet
-    #ALPHABET = np.asarray(ALPHABETS,dtype = object)[mask].tolist()
-    embeddingStrategy.getSet(expTSSet, ALPHABETS)
-    TSembeddingMatrix = np.asarray(embeddingStrategy._embeddedSet)
-    TSpatternID = embeddingStrategy._embeddedIDs   
-    TSorderID = np.asarray([TSpatternID.index(x) for x in dataTS.indices]) 
-    TSMat = TSembeddingMatrix[TSorderID,:]
+        embeddingStrategy.getSet(expVSSet, ALPHABETS)
+        VSembeddingMatrix = np.asarray(embeddingStrategy._embeddedSet)
+        VSpatternID = embeddingStrategy._embeddedIDs
     
-    predictedTS=classifier.predict(TSMat)
-    accuracyTS = sum(predictedTS==np.asarray(dataTS.labels))/len(dataTS.labels)
-    print("Accuracy on TS with global alphabet: {}".format(accuracyTS))    
-       
-
-    return LogAgents,LogPerf,ClassAlphabets,TRMat,VSMat,predictedVSmask,dataVS.labels,TSMat,predictedTS,dataTS.labels,ALPHABETS,ALPHABET,mask
+        #Resorting matrix for consistency with dataset        
+        TRorderID = np.asarray([TRpatternID.index(x) for x in dataTR.indices])
+        VSorderID = np.asarray([VSpatternID.index(x) for x in dataVS.indices])   
+    
+        TRMat = TRembeddingMatrix[TRorderID,:]
+        VSMat = VSembeddingMatrix[VSorderID,:]        
+    
+        #Feature Selection                  
+        #bounds_GA2, CXPB_GA2, MUTPB_GA2, DE_Pop = FSsetup_DE(len(ALPHABETS), -1)
+        #FS_accDE= partial(FSfitness_DE,perfMetric = 'accuracy')
+        #TuningResults_GA2 = differential_evolution(FS_accDE, bounds_GA2, 
+        #                                           args=(TRMat,
+        #                                                 VSMat, 
+        #                                                 dataTR.labels, 
+        #                                                 dataVS.labels),
+        #                                                 maxiter=100, init=DE_Pop, 
+        #                                                 recombination=CXPB_GA2,
+        #                                                 mutation=MUTPB_GA2, 
+        #                                                 workers=-1, 
+        #                                                 polish=False, 
+        #                                                 updating='deferred')
+        
+        #best_GA2 = [round(i) for i in TuningResults_GA2.x]
+        #print("Selected {}/{} feature".format(sum(np.asarray(best_GA2)==1), len(best_GA2)))
+        
+        #Embedding with best alphabet
+        #mask = np.array(best_GA2,dtype=bool)
+        classifier = KNN()
+        classifier.fit(TRMat, dataTR.labels)
+        #predictedVSmask=classifier.predict(VSMat[:, mask])
+        
+        #accuracyVS = sum(predictedVSmask==np.asarray(dataVS.labels))/len(dataVS.labels)
+        #print("Accuracy on VS with global alphabet: {}".format(accuracyVS))
+    
+        #Embedding TS with best alphabet
+        #ALPHABET = np.asarray(ALPHABETS,dtype = object)[mask].tolist()
+        embeddingStrategy.getSet(expTSSet, ALPHABETS)
+        TSembeddingMatrix = np.asarray(embeddingStrategy._embeddedSet)
+        TSpatternID = embeddingStrategy._embeddedIDs   
+        TSorderID = np.asarray([TSpatternID.index(x) for x in dataTS.indices]) 
+        TSMat = TSembeddingMatrix[TSorderID,:]
+        
+        predictedTS=classifier.predict(TSMat)
+        accuracyTS = sum(predictedTS==np.asarray(dataTS.labels))/len(dataTS.labels)
+        print("Accuracy on TS with global alphabet: {}".format(accuracyTS))    
+           
+    
+        return LogAgents,LogPerf,ClassAlphabets,TRMat,VSMat,predictedVSmask,dataVS.labels,TSMat,predictedTS,dataTS.labels,ALPHABETS,ALPHABET,mask
 
 if __name__ == "__main__":
 
@@ -385,8 +390,8 @@ if __name__ == "__main__":
     # name = "GREC"  
     # path = "/home/luca/Documenti/Progetti/E-ABC_v2/eabc_v2/Datasets/IAM/AIDS/"
     # name = "AIDS" 
-    N_subgraphs = 20
-    ngen = 20
+    N_subgraphs = 150
+    ngen = 5
     mu = 10
     lambda_= 50
     maxorder = 5
