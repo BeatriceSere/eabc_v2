@@ -158,7 +158,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
             lsubalphabets = l_subalphabets(ksubalphabets,2)
             print('lsubalphabets =', len(lsubalphabets)) #'len_l=', len(lsubalphabets[0]), len(lsubalphabets[1]), len(lsubalphabets[2]))
             klsubalphabets = ksubalphabets + lsubalphabets 
-            print('kl',klsubalphabets)
+            #print('kl',klsubalphabets)
             ##################
             # Restart with previous symbols
             #thisGenClassAlphabet = alphabets + ClassAlphabets[swarmClass]
@@ -215,7 +215,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                 winning_alphabets.append(klsubalphabets[LogAccuracy[i][0]])
             Log_Alphabets_Test.append(winning_alphabets[0])
             print('Length of the winning alphabets:',len(winning_alphabets))
-            print('win',winning_alphabets)
+            #print('win',winning_alphabets)
             
             ##################
             
@@ -390,7 +390,7 @@ if __name__ == "__main__":
     # name = "GREC"  
     # path = "/home/luca/Documenti/Progetti/E-ABC_v2/eabc_v2/Datasets/IAM/AIDS/"
     # name = "AIDS" 
-    N_subgraphs = 150
+    N_subgraphs = 20
     ngen = 5
     mu = 10
     lambda_= 50
