@@ -371,8 +371,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
         predictedTS=classifier.predict(TSMat)
         accuracyTS = sum(predictedTS==np.asarray(dataTS.labels))/len(dataTS.labels)
         print("Accuracy on TS with global alphabet: {}".format(accuracyTS)) 
-        
-        return
+    return  
            
     
         #return LogAgents,LogPerf,ClassAlphabets,TRMat,VSMat,predictedVSmask,dataVS.labels,TSMat,predictedTS,dataTS.labels,ALPHABETS,ALPHABET,mask
