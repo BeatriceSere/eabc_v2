@@ -153,9 +153,9 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
             # Generate k+l subalphabets
             ### View k_l_subalphabets into eabc directory
             print('########### SUBALPHABETS #############')
-            ksubalphabets = k_subalphabets(alphabet,3,classes,Log_alphabet)
+            ksubalphabets = k_subalphabets(alphabet,12,classes,Log_alphabet)
             print('ksubalphabets =', len(ksubalphabets))
-            lsubalphabets = l_subalphabets(ksubalphabets,2)
+            lsubalphabets = l_subalphabets(ksubalphabets,8)
             print('lsubalphabets =', len(lsubalphabets)) #'len_l=', len(lsubalphabets[0]), len(lsubalphabets[1]), len(lsubalphabets[2]))
             klsubalphabets = ksubalphabets + lsubalphabets 
             #print('kl',klsubalphabets)
@@ -371,7 +371,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
         predictedTS=classifier.predict(TSMat)
         accuracyTS = sum(predictedTS==np.asarray(dataTS.labels))/len(dataTS.labels)
         print("Accuracy on TS with global alphabet: {}".format(accuracyTS)) 
-    return  
+      
            
     
         #return LogAgents,LogPerf,ClassAlphabets,TRMat,VSMat,predictedVSmask,dataVS.labels,TSMat,predictedTS,dataTS.labels,ALPHABETS,ALPHABET,mask
