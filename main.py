@@ -313,8 +313,8 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
             #Log_sym_quality = {gen: {sym.owner:sym.quality for sym in Symbols} for gen in range(1,ngen+1)}
             #print(Log_sym_quality)
             print("------------------------------------------------------------------")
-    print("Test phase")
-    
+    print("################ TEST PHASE ####################")
+    i=0
     for ALPHABETS in Log_Alphabets_Test:
     
     
@@ -370,7 +370,8 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
         
         predictedTS=classifier.predict(TSMat)
         accuracyTS = sum(predictedTS==np.asarray(dataTS.labels))/len(dataTS.labels)
-        print("Accuracy on TS with global alphabet: {}".format(accuracyTS)) 
+        print("The accuracy on the TS with the best alphabet of the {}° generation is {} ".format(i,accuracyTS))
+        i=i+1
       
            
     
@@ -384,15 +385,15 @@ if __name__ == "__main__":
     np.random.seed(seed)
     # Parameter setup
     # They should be setted by cmd line
-    path ="/home/LabRizzi/eabc_v2/Datasets/IAM/Letter3/"
+    #path ="/home/LabRizzi/eabc_v2/Datasets/IAM/Letter3/"
     #path ="/Users/giulialatini/eabc_v2/Datasets/IAM/Letter3/"
-    name = "LetterH"
-    # path = "/home/luca/Documenti/Progetti/E-ABC_v2/eabc_v2/Datasets/IAM/GREC/"
-    # name = "GREC"  
+    #name = "LetterH"
+    path = "/home/LabRizzi/eabc_v2/Datasets/IAM/GREC/"
+    name = "GREC"  
     # path = "/home/luca/Documenti/Progetti/E-ABC_v2/eabc_v2/Datasets/IAM/AIDS/"
     # name = "AIDS" 
     N_subgraphs = 20
-    ngen = 5
+    ngen = 2
     mu = 10
     lambda_= 50
     maxorder = 5
@@ -478,6 +479,7 @@ if __name__ == "__main__":
     toolbox.decorate("mate", eabc_Nested.checkBounds(scaledQ))
     toolbox.decorate("mutate", eabc_Nested.checkBounds(scaledQ))
     
+    '''
     LogAgents, LogPerf,ClassAlphabets,TRMat,VSMat,predictedVSmask,VSlabels,TSMat,predictedTS,TSlabels, ALPHABETS,ALPHABET,mask = main(dataTR,
                                                                                                                                       dataVS,
                                                                                                                                       dataTS,
@@ -487,7 +489,17 @@ if __name__ == "__main__":
                                                                                                                                       ngen,
                                                                                                                                       maxorder,
                                                                                                                                       CXPROB,
-                                                                                                                                      MUTPROB)
+                                                                                                                                      MUTPROB)'''
+    main(dataTR,
+            dataVS,
+            dataTS,
+            N_subgraphs,
+            mu,
+            lambda_,
+            ngen,
+            maxorder,
+            CXPROB,
+            MUTPROB)
     
     
 
@@ -499,7 +511,7 @@ if __name__ == "__main__":
                  'IndMutPr':INDMUTP,
                  'TournamentSize':TOURNSIZE,
                  'Seed':seed,
-                'Agents':LogAgents,
+                ''''Agents':LogAgents,
                 'PerformancesTraining':LogPerf,
                 'ClassAlphabets':ClassAlphabets,
                 'TRMat':TRMat,
@@ -512,7 +524,7 @@ if __name__ == "__main__":
                 'TSlabels':TSlabels,
                 'ALPHABETS':ALPHABETS,
                 'ALPHABET':ALPHABET,
-                'mask':mask,
+                'mask':mask,'''
                 'N_subgraphs':N_subgraphs,
                 'N_gen':ngen,
                 'Mu':mu,
