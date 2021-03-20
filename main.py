@@ -153,9 +153,9 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
             # Generate k+l subalphabets
             ### View k_l_subalphabets into eabc directory
             print('########### SUBALPHABETS #############')
-            ksubalphabets = k_subalphabets(alphabet,12,classes,Log_alphabet)
+            ksubalphabets = k_subalphabets(alphabet,3,classes,Log_alphabet)
             print('ksubalphabets =', len(ksubalphabets))
-            lsubalphabets = l_subalphabets(ksubalphabets,8)
+            lsubalphabets = l_subalphabets(ksubalphabets,2)
             print('lsubalphabets =', len(lsubalphabets)) #'len_l=', len(lsubalphabets[0]), len(lsubalphabets[1]), len(lsubalphabets[2]))
             klsubalphabets = ksubalphabets + lsubalphabets 
             #print('kl',klsubalphabets)
@@ -385,11 +385,11 @@ if __name__ == "__main__":
     np.random.seed(seed)
     # Parameter setup
     # They should be setted by cmd line
-    #path ="/home/LabRizzi/eabc_v2/Datasets/IAM/Letter3/"
+    path ="/home/LabRizzi/eabc_v2/Datasets/IAM/Letter3/"
     #path ="/Users/giulialatini/eabc_v2/Datasets/IAM/Letter3/"
-    #name = "LetterH"
-    path = "/home/LabRizzi/eabc_v2/Datasets/IAM/GREC/"
-    name = "GREC"  
+    name = "LetterH"
+    #path = "/home/LabRizzi/eabc_v2/Datasets/IAM/GREC/"
+    #name = "GREC"  
     # path = "/home/luca/Documenti/Progetti/E-ABC_v2/eabc_v2/Datasets/IAM/AIDS/"
     # name = "AIDS" 
     N_subgraphs = 20
