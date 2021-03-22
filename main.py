@@ -389,10 +389,10 @@ if __name__ == "__main__":
     #path ="/home/LabRizzi/eabc_v2/Datasets/IAM/Letter3/"
     #path ="/Users/giulialatini/eabc_v2/Datasets/IAM/Letter3/"
     #name = "LetterH"
-    path = "/home/LabRizzi/eabc_v2/Datasets/IAM/GREC/"
-    name = "GREC"  
-    # path = "/home/luca/Documenti/Progetti/E-ABC_v2/eabc_v2/Datasets/IAM/AIDS/"
-    # name = "AIDS" 
+    #path = "/home/LabRizzi/eabc_v2/Datasets/IAM/GREC/"
+    #name = "GREC"  
+    path = "/home/LabRizzi/eabc_v2/Datasets/IAM/AIDS/"
+    name = "AIDS" 
     N_subgraphs = 20
     ngen = 2
     mu = 10
