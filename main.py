@@ -372,6 +372,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
         accuracyTS = sum(predictedTS==np.asarray(dataTS.labels))/len(dataTS.labels)
         print("The accuracy on the TS with the best alphabet of the {}° generation is {} ".format(i,accuracyTS))
         i=i+1
+    print("################ END ####################")
       
            
     
@@ -385,11 +386,11 @@ if __name__ == "__main__":
     np.random.seed(seed)
     # Parameter setup
     # They should be setted by cmd line
-    path ="/home/LabRizzi/eabc_v2/Datasets/IAM/Letter3/"
+    #path ="/home/LabRizzi/eabc_v2/Datasets/IAM/Letter3/"
     #path ="/Users/giulialatini/eabc_v2/Datasets/IAM/Letter3/"
-    name = "LetterH"
-    #path = "/home/LabRizzi/eabc_v2/Datasets/IAM/GREC/"
-    #name = "GREC"  
+    #name = "LetterH"
+    path = "/home/LabRizzi/eabc_v2/Datasets/IAM/GREC/"
+    name = "GREC"  
     # path = "/home/luca/Documenti/Progetti/E-ABC_v2/eabc_v2/Datasets/IAM/AIDS/"
     # name = "AIDS" 
     N_subgraphs = 20
