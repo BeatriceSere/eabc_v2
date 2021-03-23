@@ -20,7 +20,7 @@ from eabc.extractors import Extractor
 from eabc.extractors import randomwalk_restart
 from eabc.embeddings import SymbolicHistogram
 from eabc.extras.featureSelDE import FSsetup_DE,FSfitness_DE 
-from eabc.extras.ensembpleClassifier import StackClassifiers
+from eabc.extras.ensembleClassifierleClassifier import StackClassifiers
 from eabc.environments.nestedFS import eabc_Nested
 from eabc.granulators.granule import Granule
 from eabc.subalphabets.k_l_subalphabets import k_subalphabets, l_subalphabets
