@@ -269,7 +269,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                     if DEBUG_FITNESS:
                         fitnessesRewarded[agent] = reward,
                     else:
-                        fitnessesRewarded[agent] = fitnesses[agent][0]+reward
+                        fitnessesRewarded[agent] = 0.5*(fitnesses[agent][0]+reward)
                         #print(agentID,fitnessesRewarded[agent])
                     qualityLog = []
                     #print('fitness=', fitnessesRewarded[agent])
@@ -341,6 +341,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
         TSMat = TSembeddingMatrix[TSorderID,:]    
 
         TSembeddingSpaces.append(TSMat)
+        print("avanti uno")
 
     print("Building ensemble of classifiers...")
     ensembleClassifier = StackClassifiers(previousClassifiers,isPrefit=True)
@@ -435,11 +436,11 @@ if __name__ == "__main__":
     np.random.seed(seed)
     # Parameter setup
     # They should be setted by cmd line
-    #path ="/home/LabRizzi/eabc_v2/Datasets/IAM/Letter3/"
+    path ="/home/LabRizzi/eabc_v2/Datasets/IAM/Letter3/"
     #path ="/Users/giulialatini/eabc_v2/Datasets/IAM/Letter3/"
-    #name = "LetterH"
-    path = "/home/LabRizzi/eabc_v2/Datasets/IAM/GREC/"
-    name = "GREC"  
+    name = "LetterH"
+    #path = "/home/LabRizzi/eabc_v2/Datasets/IAM/GREC/"
+    #name = "GREC"  
     #path = "/home/LabRizzi/eabc_v2/Datasets/IAM/AIDS/"
     #name = "AIDS" 
     N_subgraphs = 20
