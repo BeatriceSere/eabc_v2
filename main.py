@@ -20,6 +20,7 @@ from eabc.extractors import Extractor
 from eabc.extractors import randomwalk_restart
 from eabc.embeddings import SymbolicHistogram
 from eabc.extras.featureSelDE import FSsetup_DE,FSfitness_DE 
+from eabc.extras.ensembleClassifier import StackClassifiers
 from eabc.environments.nestedFS import eabc_Nested
 from eabc.granulators.granule import Granule
 from eabc.subalphabets.k_l_subalphabets import k_subalphabets, l_subalphabets
@@ -93,7 +94,9 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
     Log_alphabet={thisClass:[] for thisClass in classes}
     alphabet=[]
     Log_Alphabets_Test=[]
-    number_agents=0;
+    number_agents=0
+    previousModels=[]
+    previousClassifiers = []
     
     # Begin the generational process   
     for gen in range(1, ngen + 1):
@@ -191,6 +194,10 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                 classifier = KNN()
                 classifier.fit(TRMat,TRlabels)
                 predictedVSLabels = classifier.predict(VSMat)
+                
+                
+                previousClassifiers.append(classifier)
+                previousModels.append(sub)
                 #print(VSlabels)
                 #print(predictedVSLabels)
                 #print(dataVS.labels,predictedVSLabels) 
@@ -317,6 +324,44 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
             #print(Log_sym_quality)
             print("------------------------------------------------------------------")
     print("################ TEST PHASE ####################")
+    
+    print("Embedding Test Set")
+    TSembeddingSpaces = []
+    for model_ in previousModels:
+        
+        embeddingStrategy = SymbolicHistogram(isSymbolDiss=True,isParallel=True)
+        
+        #Embedding with current symbols
+        embeddingStrategy.getSet(expTSSet, model_)
+        TSembeddingMatrix = np.asarray(embeddingStrategy._embeddedSet)
+        TSpatternID = embeddingStrategy._embeddedIDs
+
+        #Resorting matrix for consistency with dataset        
+        TSorderID = np.asarray([TSpatternID.index(x) for x in dataTS.indices])
+        TSMat = TSembeddingMatrix[TSorderID,:]    
+
+        TSembeddingSpaces.append(TSMat)
+
+    print("Building ensemble of classifiers...")
+    ensembleClassifier = StackClassifiers(previousClassifiers,isPrefit=True)
+    ensembleClassifier.fit(labels=dataTR.labels)
+    predictedTSLabels = ensembleClassifier.predict(TSembeddingSpaces)
+    
+    
+    accuracyTS = sum(predictedTSLabels==np.asarray(dataTS.labels))/len(dataTS.labels)
+    print("Accuracy on TS: {}".format(accuracyTS)) 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    '''
     i=0
     for ALPHABETS in Log_Alphabets_Test:
     
@@ -375,6 +420,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
         accuracyTS = sum(predictedTS==np.asarray(dataTS.labels))/len(dataTS.labels)
         print("The accuracy on the TS with the best alphabet of the {}° generation is {} ".format(i,accuracyTS))
         i=i+1
+        '''
     print("################ END ####################")
       
            
