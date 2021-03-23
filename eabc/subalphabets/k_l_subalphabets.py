@@ -71,7 +71,7 @@ def k_subalphabets (alphabet,kappa_subal,classes,Log_alphabet):
         are chosen with the random probability.
     
 '''
-
+'''
 def k_subalphabets (alphabet,kappa_subal,classes,Log_alphabet):
     ksubalphabets=[]
     sum_quality=0
@@ -106,7 +106,7 @@ def k_subalphabets (alphabet,kappa_subal,classes,Log_alphabet):
             ksubalphabets.append(k_sub)
             
     return(ksubalphabets)    
-
+'''
 '''
     l-subalphabets
     --------------
