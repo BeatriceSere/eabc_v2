@@ -41,7 +41,7 @@ def k_subalphabets (alphabet,kappa_subal,classes,Log_alphabet):
         for _ in range(kappa_subal):
             ksub_set=set(random.choices(alphabet,weights =prob,k=n))
             k_sub=list(ksub_set)
-            k_sub.sort(reverse=True, key=qualità(k_sub))
+            k_sub.sort(reverse=True, key=k_sub[:].quality)
             k_sub=k_sub[:100]
             for swarmClass in classes:
                 number_symbols_class=len([sym for sym in k_sub if sym.classSymb==swarmClass])
@@ -52,9 +52,6 @@ def k_subalphabets (alphabet,kappa_subal,classes,Log_alphabet):
             
     return(ksubalphabets)    
 
-def qualità(k_sub):
-    for symb in k_sub:
-        return(symb.quality)
     
 
 '''
