@@ -10,6 +10,53 @@ import random
 '''
     k-subalphabets
     --------------
+    
+    All k sub-alphabets are the same length
+'''
+
+def k_subalphabets (alphabet,kappa_subal,classes,Log_alphabet):
+    ksubalphabets=[]
+    sum_quality=0
+    n=int(len(alphabet)/kappa_subal)
+    for symb in alphabet:
+        sum_quality=symb.quality+sum_quality
+    if sum_quality == 0:
+        for _ in range(kappa_subal):
+            ksub_set=set(random.choices(alphabet, weights =None, k=n))
+            k_sub=list(ksub_set)
+            k_sub=k_sub[:100]
+            for swarmClass in classes:
+                number_symbols_class=len([sym for sym in k_sub if sym.classSymb==swarmClass])
+                if number_symbols_class==0:
+                    print('** Add symbol **')
+                    k_sub.append(Log_alphabet[swarmClass][0])
+            ksubalphabets.append(k_sub)
+    else:   
+        prob=[]
+        for symb in alphabet:
+            prob.append(symb.quality/sum_quality)
+        for counter,value in enumerate(prob):
+            if value==0:
+               prob[counter]=random.random()
+        for _ in range(kappa_subal):
+            ksub_set=set(random.choices(alphabet,weights =prob,k=n))
+            k_sub=list(ksub_set)
+            k_sub.sort(key=[symb.quality for symb in k_sub],reverse=True)
+            k_sub=k_sub[:100]
+            for swarmClass in classes:
+                number_symbols_class=len([sym for sym in k_sub if sym.classSymb==swarmClass])
+                if number_symbols_class==0:
+                    print('** Add symbol **')
+                    k_sub.append(Log_alphabet[swarmClass][0])
+            ksubalphabets.append(k_sub)
+            
+    return(ksubalphabets)    
+
+
+
+'''
+    k-subalphabets
+    --------------
 
     Generation of k sub-alphabets choosing symbols from general alphabet containing the symbols
     of all classes of the g-th generation. The probability of choosing one symbol over another

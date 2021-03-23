@@ -265,11 +265,13 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                         fitnessesRewarded[agent] = fitnesses[agent][0]+reward
                         #print(agentID,fitnessesRewarded[agent])
                     qualityLog = []
-                    #print('fitness=', fitnessesRewarded[agent]) 
+                    #print('fitness=', fitnessesRewarded[agent])
+                    
             ####################################        
 
-                
- 
+            for ind, fit in zip(pop, fitnessesRewarded):    
+                ind.fitness.values = fit
+            '''
             if DEBUG_INDOCC:
                 fitmean = []
             for ind, fit in zip(pop, fitnessesRewarded):
@@ -281,6 +283,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                 ind.fitness.values = fit
                 if DEBUG_INDOCC:
                     fitmean.append(fit)
+            '''
             ##           
             # x = np.asarray([ind.fitness.values[0] for ind in pop])
             # y = np.asarray([fit[0] for fit in fitmean])
@@ -389,12 +392,12 @@ if __name__ == "__main__":
     #path ="/home/LabRizzi/eabc_v2/Datasets/IAM/Letter3/"
     #path ="/Users/giulialatini/eabc_v2/Datasets/IAM/Letter3/"
     #name = "LetterH"
-    #path = "/home/LabRizzi/eabc_v2/Datasets/IAM/GREC/"
-    #name = "GREC"  
-    path = "/home/LabRizzi/eabc_v2/Datasets/IAM/AIDS/"
-    name = "AIDS" 
-    N_subgraphs = 20
-    ngen = 2
+    path = "/home/LabRizzi/eabc_v2/Datasets/IAM/GREC/"
+    name = "GREC"  
+    #path = "/home/LabRizzi/eabc_v2/Datasets/IAM/AIDS/"
+    #name = "AIDS" 
+    N_subgraphs = 150
+    ngen = 10
     mu = 10
     lambda_= 50
     maxorder = 5
@@ -454,8 +457,8 @@ if __name__ == "__main__":
     toolbox = base.Toolbox()
     
     #Multiprocessing map
-    # pool = multiprocessing.Pool()
-    # toolbox.register("map", pool.map)
+    pool = multiprocessing.Pool()
+    toolbox.register("map", pool.map)
 
     eabc_Nested = eabc_Nested(DissimilarityClass=Dissimilarity,problemName = name,DissNormFactors=weights)
     
