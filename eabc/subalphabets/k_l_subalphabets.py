@@ -41,7 +41,7 @@ def k_subalphabets (alphabet,kappa_subal,classes,Log_alphabet):
         for _ in range(kappa_subal):
             ksub_set=set(random.choices(alphabet,weights =prob,k=n))
             k_sub=list(ksub_set)
-            k_sub=sorted(k_sub, key=lambda x: x.self.quality, reverse=True)
+            k_sub=sorted(k_sub, key=lambda x: x.quality, reverse=True)
             #k_sub.sort(reverse=True, key=k_sub[:].quality)
             k_sub=k_sub[:100]
             for swarmClass in classes:

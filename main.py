@@ -396,7 +396,7 @@ if __name__ == "__main__":
     name = "GREC"  
     #path = "/home/LabRizzi/eabc_v2/Datasets/IAM/AIDS/"
     #name = "AIDS" 
-    N_subgraphs = 150
+    N_subgraphs = 20
     ngen = 10
     mu = 10
     lambda_= 50
