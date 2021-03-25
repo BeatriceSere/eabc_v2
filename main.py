@@ -436,11 +436,11 @@ if __name__ == "__main__":
     np.random.seed(seed)
     # Parameter setup
     # They should be setted by cmd line
-    path ="/home/LabRizzi/eabc_v2/Datasets/IAM/Letter3/"
+    #path ="/home/LabRizzi/eabc_v2/Datasets/IAM/Letter3/"
     #path ="/Users/giulialatini/eabc_v2/Datasets/IAM/Letter3/"
-    name = "LetterH"
-    #path = "/home/LabRizzi/eabc_v2/Datasets/IAM/GREC/"
-    #name = "GREC"  
+    #name = "LetterH"
+    path = "/home/LabRizzi/eabc_v2/Datasets/IAM/GREC/"
+    name = "GREC"  
     #path = "/home/LabRizzi/eabc_v2/Datasets/IAM/AIDS/"
     #name = "AIDS" 
     N_subgraphs = 150
