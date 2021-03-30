@@ -3,13 +3,12 @@
 
 class Granule:
     
-    def __init__(self, Representative=None,
-                 DissimilarityMeasure=None,
+    def __init__(self, Representative,
+                 DissimilarityMeasure,
                  Fvalue = None,
                  cardinality = None,
                  avgDispersion = None,
                  Quality = 0,
-                 Class = None,
                  epsilon = 1.1):
                 
 
@@ -23,10 +22,6 @@ class Granule:
         self._Cardinality = cardinality
         self._AvgDispersion = avgDispersion 
         self._epsilon = epsilon
-        
-        #Added for store agent property
-        self._ownerID = None
-        self._Class = None
         
         #Better evaluate F externally?
 #        self._Fweight = eta
@@ -95,12 +90,6 @@ class Granule:
     def representative(self,obj):
         if obj:
             self._Representative = obj
-    @property
-    def classSymb(self):
-        return self._Class
-    @classSymb.setter
-    def classSymb(self, classAgent):
-        self._Class = classAgent 
 
     @property
     def dissimilarity(self):
@@ -109,12 +98,7 @@ class Granule:
     def dissimilarity(self,obj):
         if obj:
             self._DissimilarityMeasure = obj
-    @property
-    def owner(self):
-        return self._ownerID
-    @owner.setter
-    def owner(self,val):
-        self._ownerID = val
+    
     # @property
     # def effectiveRadius(self):
     #     return self._effectiveRadius
@@ -122,6 +106,4 @@ class Granule:
     #Induce total ordering for SortedList
     #Equality is left to id(object1) == id(object2)
     def __lt__(self,other):
-        return self._Quality < other.quality
-
-       
+        return self._Quality < other.quality        
