@@ -255,9 +255,9 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                                 for sym in winner:
                                     if sym.owner==str(agentID)+classAgent:
                                         #print('Prova',sym.owner)
-                                        if LogAccuracy[position][1] <= 0.75:
-                                            sym.quality = sym.quality-5
-                                        elif LogAccuracy[position][1] >= 0.85:
+                                        if LogAccuracy[position][1] <= 0.55:
+                                            sym.quality = sym.quality-10
+                                        elif LogAccuracy[position][1] >= 0.75:
                                              sym.quality = sym.quality+10
                                         else:
                                              sym.quality = sym.quality+5
@@ -431,7 +431,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
 if __name__ == "__main__":
 
 
-    seed = 64
+    seed = 64 
     random.seed(seed)
     np.random.seed(seed)
     # Parameter setup
@@ -443,7 +443,7 @@ if __name__ == "__main__":
     name = "GREC"  
     #path = "/home/LabRizzi/eabc_v2/Datasets/IAM/AIDS/"
     #name = "AIDS" 
-    N_subgraphs = 150
+    N_subgraphs = 100 #Prima era 150
     ngen = 10
     mu = 10
     lambda_= 50
