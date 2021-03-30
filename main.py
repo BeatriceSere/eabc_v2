@@ -255,9 +255,9 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                                 for sym in winner:
                                     if sym.owner==str(agentID)+classAgent:
                                         #print('Prova',sym.owner)
-                                        if LogAccuracy[position][1] <= 0.55:
-                                            sym.quality = sym.quality-10
-                                        elif LogAccuracy[position][1] >= 0.75:
+                                        if LogAccuracy[position][1] <= 0.40:
+                                            sym.quality = sym.quality-5
+                                        elif LogAccuracy[position][1] >= 0.65:
                                              sym.quality = sym.quality+10
                                         else:
                                              sym.quality = sym.quality+5
