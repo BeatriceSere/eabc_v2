@@ -311,7 +311,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
             
             # Select the next generation population for the current swarm
             for swarmClass in classes:
-                population[swarmClass] = toolbox.select(population[swarmClass], mu)
+                population[swarmClass][:] = toolbox.select(population[swarmClass], mu)
                 
             # Save Informedness for class and gen
             ###LogPerf[swarmClass].append([J,sum(np.asarray(best_GA2)==1),len(best_GA2)])
