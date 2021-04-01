@@ -445,8 +445,8 @@ if __name__ == "__main__":
     #name = "AIDS" 
     N_subgraphs = 100 #Prima era 150
     ngen = 10
-    mu = 10
-    lambda_= 50
+    mu = 20 #eumento di 10 unità
+    lambda_= 60 #eumento di 10 unità
     maxorder = 5
     CXPROB = 0.45
     MUTPROB = 0.45

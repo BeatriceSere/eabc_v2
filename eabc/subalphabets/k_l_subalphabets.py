@@ -43,7 +43,7 @@ def k_subalphabets (alphabet,kappa_subal,classes,Log_alphabet):
             k_sub=list(ksub_set)
             k_sub=sorted(k_sub, key=lambda x: x.quality, reverse=True)
             #k_sub.sort(reverse=True, key=k_sub[:].quality)
-            k_sub=k_sub[:500]
+            k_sub=k_sub[:300]
             for swarmClass in classes:
                 number_symbols_class=len([sym for sym in k_sub if sym.classSymb==swarmClass])
                 if number_symbols_class==0:
