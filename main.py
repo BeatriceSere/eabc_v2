@@ -24,6 +24,10 @@ from eabc.extras.ensembleClassifier import StackClassifiers
 from eabc.environments.nestedFS import eabc_Nested
 from eabc.granulators.granule import Granule
 from eabc.subalphabets.k_l_subalphabets import k_subalphabets, l_subalphabets
+import time
+################# CLOCK TRAINING ###################
+clock_training = time.time()
+####################################################
 def IAMreader(parser,path):
     
     delimiters = "_", "."      
@@ -156,9 +160,9 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
             # Generate k+l subalphabets
             ### View k_l_subalphabets into eabc directory
             print('########### SUBALPHABETS #############')
-            ksubalphabets = k_subalphabets(alphabet,3,classes,Log_alphabet)
+            ksubalphabets = k_subalphabets(alphabet,10,classes,Log_alphabet)
             print('ksubalphabets =', len(ksubalphabets))
-            lsubalphabets = l_subalphabets(ksubalphabets,2)
+            lsubalphabets = l_subalphabets(ksubalphabets,5)
             print('lsubalphabets =', len(lsubalphabets)) #'len_l=', len(lsubalphabets[0]), len(lsubalphabets[1]), len(lsubalphabets[2]))
             klsubalphabets = ksubalphabets + lsubalphabets 
             #print('kl',klsubalphabets)
@@ -255,7 +259,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                                 for sym in winner:
                                     if sym.owner==str(agentID)+classAgent:
                                         #print('Prova',sym.owner)
-                                        if LogAccuracy[position][1] <= 0.40:
+                                        if LogAccuracy[position][1] <= 0.6:
                                             sym.quality = sym.quality-5
                                         elif LogAccuracy[position][1] >= 0.65:
                                              sym.quality = sym.quality+10
@@ -323,8 +327,9 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
             #Log_sym_quality = {gen: {sym.owner:sym.quality for sym in Symbols} for gen in range(1,ngen+1)}
             #print(Log_sym_quality)
             print("------------------------------------------------------------------")
-    print("################ TEST PHASE ####################")
     
+    t_training = time.time() - clock_training
+    clock_test = time.time()
     print("Embedding Test Set")
     TSembeddingSpaces = []
     for model_ in previousModels:
@@ -422,6 +427,8 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
         print("The accuracy on the TS with the best alphabet of the {}° generation is {} ".format(i,accuracyTS))
         i=i+1
         '''
+    t_test = time.time() - clock_test
+    print('Training Time: ', t_training, 'Test Time: ', t_test)
     print("################ END ####################")
       
            
@@ -443,10 +450,10 @@ if __name__ == "__main__":
     name = "GREC"  
     #path = "/home/LabRizzi/eabc_v2/Datasets/IAM/AIDS/"
     #name = "AIDS" 
-    N_subgraphs = 100 #Prima era 150
-    ngen = 10
-    mu = 20 #eumento di 10 unità
-    lambda_= 60 #eumento di 10 unità
+    N_subgraphs = 210 #GREC 1/100 della tabella
+    ngen = 20
+    mu = 10 
+    lambda_= 20 
     maxorder = 5
     CXPROB = 0.45
     MUTPROB = 0.45
