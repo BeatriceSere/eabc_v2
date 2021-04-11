@@ -24,7 +24,7 @@ def k_subalphabets (alphabet,kappa_subal,classes,Log_alphabet):
         for _ in range(kappa_subal):
             ksub_set=set(random.choices(alphabet, weights =None, k=n))
             k_sub=list(ksub_set)
-            k_sub=k_sub[:200]
+            k_sub=k_sub[:500]
             for swarmClass in classes:
                 number_symbols_class=len([sym for sym in k_sub if sym.classSymb==swarmClass])
                 if number_symbols_class==0:
@@ -43,7 +43,7 @@ def k_subalphabets (alphabet,kappa_subal,classes,Log_alphabet):
             k_sub=list(ksub_set)
             k_sub=sorted(k_sub, key=lambda x: x.quality, reverse=True)
             #k_sub.sort(reverse=True, key=k_sub[:].quality)
-            k_sub=k_sub[:200]
+            k_sub=k_sub[:500]
             for swarmClass in classes:
                 number_symbols_class=len([sym for sym in k_sub if sym.classSymb==swarmClass])
                 if number_symbols_class==0:
@@ -140,7 +140,7 @@ def l_subalphabets (subalphabets,l):
                 ind2 = random.choice(subalphabets)
             alph_offspring = set(ind1) | set(ind2)
             alph_offspring = list(alph_offspring)
-            alph_offsprings.append(alph_offspring[:200])
+            alph_offsprings.append(alph_offspring[:500])
         elif 0.3<op_choice1<0.6:                                   # Apply intersection
             ind1 = random.choice(subalphabets)
             ind2 = random.choice(subalphabets)
@@ -151,7 +151,7 @@ def l_subalphabets (subalphabets,l):
                 alph_offspring = set(ind1) & set(ind2)
             alph_offspring= set(ind1) & set(ind2)
             alph_offspring = list(alph_offspring)
-            alph_offsprings.append(alph_offspring[:200])
+            alph_offsprings.append(alph_offspring[:500])
         else:
             ind1 = random.choice(subalphabets)
             n1= random.randint(0, len(ind1))
@@ -159,5 +159,5 @@ def l_subalphabets (subalphabets,l):
             n2= random.randint(0, len(ind1))
             del ind1[n2]
             alph_offspring =ind1
-            alph_offsprings.append(alph_offspring[:200])
+            alph_offsprings.append(alph_offspring[:500])
     return(alph_offsprings)       
