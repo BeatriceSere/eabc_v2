@@ -24,6 +24,7 @@ from eabc.extras.ensembleClassifier import StackClassifiers
 from eabc.environments.nestedFS import eabc_Nested
 from eabc.granulators.granule import Granule
 from eabc.subalphabets.k_l_subalphabets import k_subalphabets, l_subalphabets
+from eabc.reward.rewardSymb import SymbReward
 import time
 ################# CLOCK TRAINING ###################
 clock_training = time.time()
@@ -252,23 +253,24 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                     
                     NagentSymbolsInModels=len([sym for sym in Symbols if sym.owner==str(agentID)+classAgent])
                     #print('Simbols for agent=', NagentSymbolsInModels)
-                    if NagentSymbolsInModels == 0:
-                        reward=0
-                    else:
-                        for position,winner in enumerate(winning_alphabets):
-                                for sym in winner:
-                                    if sym.owner==str(agentID)+classAgent:
-                                        #print('Prova',sym.owner)
-                                        if LogAccuracy[position][1] <= 0.6:
-                                            sym.quality = sym.quality-5
-                                        elif LogAccuracy[position][1] >= 0.65:
-                                             sym.quality = sym.quality+10
-                                        else:
-                                             sym.quality = sym.quality+5
-                        for sym in Symbols:
-                            if sym.owner==str(agentID)+classAgent:
-                                qualityLog.append(sym.quality)
-                        reward = sum(qualityLog)/NagentSymbolsInModels
+                    #if NagentSymbolsInModels == 0: DA QUI
+                    #    reward=0
+                    #else:
+                    #    for position,winner in enumerate(winning_alphabets):
+                    #            for sym in winner:
+                    #                if sym.owner==str(agentID)+classAgent:
+                    #                    #print('Prova',sym.owner)
+                    #                    if LogAccuracy[position][1] <= 0.6:
+                    #                        sym.quality = sym.quality-5
+                    #                    elif LogAccuracy[position][1] >= 0.65:
+                    #                         sym.quality = sym.quality+10
+                    #                    else:
+                    #                         sym.quality = sym.quality+5
+                    #    for sym in Symbols:
+                    #        if sym.owner==str(agentID)+classAgent:
+                    #            qualityLog.append(sym.quality)
+                    #    reward = sum(qualityLog)/NagentSymbolsInModels
+                    reward = SymbReward(NagentSymbolsInModels, winning_alphabets, agentID, classAgent, LogAccuracy, Symbols, qualityLog)
                     rewardLog.append(reward)
                     if DEBUG_FITNESS:
                         fitnessesRewarded[agent] = reward,

@@ -3,7 +3,7 @@
 """
 Created on Mon Jan 25 09:43:57 2021
 
-@author: giulialatini & beatriceserenellini
+@authors: giulialatini & beatriceserenellini
 """
 
 import random 
