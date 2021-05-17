@@ -56,6 +56,7 @@ def k_subalphabets (alphabet,kappa_subal,classes,Log_alphabet):
     
 
 '''
+Uncomment in you don't want to block the length of the sub-alphabets
     k-subalphabets
     --------------
 
@@ -154,10 +155,9 @@ def l_subalphabets (subalphabets,l):
             alph_offsprings.append(alph_offspring[:200])
         else:
             ind1 = random.choice(subalphabets)
-            n1= random.randint(0, len(ind1))
-            del ind1[n1]
-            n2= random.randint(0, len(ind1))
-            del ind1[n2]
+            ind_del = random.sample(range(int((len(ind1)-1)/10)),int((len(ind1)-1)/10));
+            for i in ind_del:
+                del ind1[ind_del]
             alph_offspring =ind1
             alph_offsprings.append(alph_offspring[:200])
     return(alph_offsprings)       

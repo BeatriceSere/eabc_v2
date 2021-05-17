@@ -8,11 +8,10 @@ import networkx as nx
 import multiprocessing
 from functools import partial
 import copy
-
+import matplotlib.pyplot as plt
 from sklearn.neighbors import KNeighborsClassifier as KNN
 from sklearn.metrics import confusion_matrix, multilabel_confusion_matrix
 from scipy.optimize import differential_evolution
-
 from Datasets.IAM import IamDotLoader
 from Datasets.IAM import Letter,GREC,AIDS
 from eabc.datasets import graph_nxDataset
@@ -24,11 +23,12 @@ from eabc.extras.ensembleClassifier import StackClassifiers
 from eabc.environments.nestedFS import eabc_Nested
 from eabc.granulators.granule import Granule
 from eabc.subalphabets.k_l_subalphabets import k_subalphabets, l_subalphabets
-from eabc.reward.rewardSymb import SymbReward
 import time
+
 ################# CLOCK TRAINING ###################
 clock_training = time.time()
 ####################################################
+
 def IAMreader(parser,path):
     
     delimiters = "_", "."      
@@ -135,16 +135,6 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                 # Run individual and return the partial fitness comp+card
                 fitnesses,alphabets = zip(*toolbox.map(toolbox.evaluate, zip(population[swarmClass],subgraphs)))
                 
-                ''' Generate IDs for agents that pushed symbols in class bucket
-                    E.g. idAgents       [ 0   0    1   1  1     2    -  3    .... ]
-                         alphabets      [[s1 s2] [ s3  s4 s5]  [s6] []  [s7] .... ]
-                    Identify the agent that push s_i symbol
-                     idAgents=[]
-                     for i in range(len(pop)):
-                         if alphabets[i]:
-                             for _ in range(len(alphabets[i])):
-                                 idAgents.append(i)'''
-                
                 # Concatenate symbols if not empty
                 for s in sum(alphabets,[]):
                     s.classSymb=swarmClass
@@ -161,16 +151,14 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
             # Generate k+l subalphabets
             ### View k_l_subalphabets into eabc directory
             print('########### SUBALPHABETS #############')
-            ksubalphabets = k_subalphabets(alphabet,20,classes,Log_alphabet)
+            ksubalphabets = k_subalphabets(alphabet,10,classes,Log_alphabet)
             print('ksubalphabets =', len(ksubalphabets))
-            lsubalphabets = l_subalphabets(ksubalphabets,10)
+            lsubalphabets = l_subalphabets(ksubalphabets,5)
             print('lsubalphabets =', len(lsubalphabets)) #'len_l=', len(lsubalphabets[0]), len(lsubalphabets[1]), len(lsubalphabets[2]))
             klsubalphabets = ksubalphabets + lsubalphabets 
             #print('kl',klsubalphabets)
             ##################
-            # Restart with previous symbols
-            #thisGenClassAlphabet = alphabets + ClassAlphabets[swarmClass]
-            ##################
+            
             
             sub_position = 0           
             for sub in klsubalphabets:
@@ -253,24 +241,24 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                     
                     NagentSymbolsInModels=len([sym for sym in Symbols if sym.owner==str(agentID)+classAgent])
                     #print('Simbols for agent=', NagentSymbolsInModels)
-                    #if NagentSymbolsInModels == 0: DA QUI
-                    #    reward=0
-                    #else:
-                    #    for position,winner in enumerate(winning_alphabets):
-                    #            for sym in winner:
-                    #                if sym.owner==str(agentID)+classAgent:
-                    #                    #print('Prova',sym.owner)
-                    #                    if LogAccuracy[position][1] <= 0.6:
-                    #                        sym.quality = sym.quality-5
-                    #                    elif LogAccuracy[position][1] >= 0.65:
-                    #                         sym.quality = sym.quality+10
-                    #                    else:
-                    #                         sym.quality = sym.quality+5
-                    #    for sym in Symbols:
-                    #        if sym.owner==str(agentID)+classAgent:
-                    #            qualityLog.append(sym.quality)
-                    #    reward = sum(qualityLog)/NagentSymbolsInModels
-                    reward = SymbReward(NagentSymbolsInModels, winning_alphabets, agentID, classAgent, LogAccuracy, Symbols, qualityLog)
+                    if NagentSymbolsInModels == 0: 
+                        reward=0
+                    else:
+                        for position,winner in enumerate(winning_alphabets):
+                                for sym in winner:
+                                    if sym.owner==str(agentID)+classAgent:
+                                        #print('Prova',sym.owner)
+                                        if LogAccuracy[position][1] <= 0.6:
+                                            sym.quality = sym.quality-5
+                                        elif LogAccuracy[position][1] >= 0.65:
+                                             sym.quality = sym.quality+10
+                                        else:
+                                             sym.quality = sym.quality+5
+                        for sym in Symbols:
+                            if sym.owner==str(agentID)+classAgent:
+                                qualityLog.append(sym.quality)
+                        reward = sum(qualityLog)/NagentSymbolsInModels
+                    #reward = SymbReward(NagentSymbolsInModels, winning_alphabets, agentID, classAgent, LogAccuracy, Symbols, qualityLog)
                     rewardLog.append(reward)
                     if DEBUG_FITNESS:
                         fitnessesRewarded[agent] = reward,
@@ -297,37 +285,11 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
                 if DEBUG_INDOCC:
                     fitmean.append(fit)
             '''
-            ##           
-            # x = np.asarray([ind.fitness.values[0] for ind in pop])
-            # y = np.asarray([fit[0] for fit in fitmean])
-            # if not np.all(x == y):
-            #     pause = input("Stop Error")
-            #     print("in pop")
-            #     print(np.asarray([ind.fitness.values[0] for ind in pop]))
-            #     pause = input()
-            #     print("fitness list ")
-            #     print(np.asarray([fit[0] for fit in fitmean]))
-            #     #print(np.asarray([fit[0] for fit in fitnesses]))                    
-            #     pause = input()
-            #     print(np.where(x!=y))
-            #     pause = input()
-            #     for ind in pop:
-            #         print(ind.ID,ind.fitness.valid)
-            ##
             
             # Select the next generation population for the current swarm
             for swarmClass in classes:
                 population[swarmClass][:] = toolbox.select(population[swarmClass], mu)
                 
-            # Save Informedness for class and gen
-            ###LogPerf[swarmClass].append([J,sum(np.asarray(best_GA2)==1),len(best_GA2)])
-            
-            # Save population at g = gen
-            #LogAgents[gen][swarmClass].append([pop,fitnesses,rewardLog,fitnessesRewarded])
-            
-            
-            #Log_sym_quality = {gen: {sym.owner:sym.quality for sym in Symbols} for gen in range(1,ngen+1)}
-            #print(Log_sym_quality)
             print("------------------------------------------------------------------")
     
     t_training = time.time() - clock_training
@@ -359,17 +321,9 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
     accuracyTS = sum(predictedTSLabels==np.asarray(dataTS.labels))/len(dataTS.labels)
     print("Accuracy on TS: {}".format(accuracyTS)) 
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+   
     '''
+    Decomment if you want to use test without ensemble
     i=0
     for ALPHABETS in Log_Alphabets_Test:
     
@@ -432,10 +386,7 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
     t_test = time.time() - clock_test
     print('Training Time: ', t_training, 'Test Time: ', t_test)
     print("################ END ####################")
-      
-           
-    
-        #return LogAgents,LogPerf,ClassAlphabets,TRMat,VSMat,predictedVSmask,dataVS.labels,TSMat,predictedTS,dataTS.labels,ALPHABETS,ALPHABET,mask
+     
 
 if __name__ == "__main__":
 
@@ -446,13 +397,13 @@ if __name__ == "__main__":
     # Parameter setup
     # They should be setted by cmd line
     #path ="/home/LabRizzi/eabc_v2/Datasets/IAM/Letter3/"
-    #path ="/Users/giulialatini/eabc_v2/Datasets/IAM/Letter3/"
-    #name = "LetterH"
-    path = "/home/LabRizzi/eabc_v2/Datasets/IAM/GREC/"
-    name = "GREC"  
+    path ="/Users/giulialatini/eabc_v2/Datasets/IAM/Letter3/"
+    name = "LetterH"
+    #path = "/home/LabRizzi/eabc_v2/Datasets/IAM/GREC/"
+    #name = "GREC"  
     #path = "/home/LabRizzi/eabc_v2/Datasets/IAM/AIDS/"
     #name = "AIDS" 
-    N_subgraphs = 210 #GREC 1/100 della tabella
+    N_subgraphs = 130 #GREC 1/100 della tabella
     ngen = 20
     mu = 10 
     lambda_= 20 
@@ -539,17 +490,7 @@ if __name__ == "__main__":
     toolbox.decorate("mate", eabc_Nested.checkBounds(scaledQ))
     toolbox.decorate("mutate", eabc_Nested.checkBounds(scaledQ))
     
-    '''
-    LogAgents, LogPerf,ClassAlphabets,TRMat,VSMat,predictedVSmask,VSlabels,TSMat,predictedTS,TSlabels, ALPHABETS,ALPHABET,mask = main(dataTR,
-                                                                                                                                      dataVS,
-                                                                                                                                      dataTS,
-                                                                                                                                      N_subgraphs,
-                                                                                                                                      mu,
-                                                                                                                                      lambda_,
-                                                                                                                                      ngen,
-                                                                                                                                      maxorder,
-                                                                                                                                      CXPROB,
-                                                                                                                                      MUTPROB)'''
+
     main(dataTR,
             dataVS,
             dataTS,
@@ -571,26 +512,12 @@ if __name__ == "__main__":
                  'IndMutPr':INDMUTP,
                  'TournamentSize':TOURNSIZE,
                  'Seed':seed,
-                ''''Agents':LogAgents,
-                'PerformancesTraining':LogPerf,
-                'ClassAlphabets':ClassAlphabets,
-                'TRMat':TRMat,
-                'TRlabels':dataTR.labels,
-                'VSMat':VSMat,
-                'predictedVSmask':predictedVSmask,
-                'VSlabels':VSlabels,
-                'TSMat':TSMat,
-                'predictedTS':predictedTS,
-                'TSlabels':TSlabels,
-                'ALPHABETS':ALPHABETS,
-                'ALPHABET':ALPHABET,
-                'mask':mask,'''
-                'N_subgraphs':N_subgraphs,
-                'N_gen':ngen,
-                'Mu':mu,
-                'lambda':lambda_,
-                'max_order':maxorder
-                },
-                open(name+'.pkl','wb'))
+                 'N_subgraphs':N_subgraphs,
+                 'N_gen':ngen,
+                 'Mu':mu,
+                 'lambda':lambda_,
+                 'max_order':maxorder, 
+                 },
+                 open(name+'.pkl','wb'))
     
     
