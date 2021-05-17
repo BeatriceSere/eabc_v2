@@ -272,19 +272,6 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
 
             for ind, fit in zip(pop, fitnessesRewarded):    
                 ind.fitness.values = fit
-            '''
-            if DEBUG_INDOCC:
-                fitmean = []
-            for ind, fit in zip(pop, fitnessesRewarded):
-                if DEBUG_INDOCC:
-                    ids = np.asarray([thisInd.ID for thisInd in pop])
-                    fitness = np.asarray(fitnessesRewarded)
-                    indices = np.where(ids == ind.ID)
-                    fit = np.mean(fitness[indices]),
-                ind.fitness.values = fit
-                if DEBUG_INDOCC:
-                    fitmean.append(fit)
-            '''
             
             # Select the next generation population for the current swarm
             for swarmClass in classes:
@@ -322,67 +309,6 @@ def main(dataTR,dataVS,dataTS,N_subgraphs,mu,lambda_,ngen,maxorder,cxpb,mutpb):
     print("Accuracy on TS: {}".format(accuracyTS)) 
     
    
-    '''
-    Decomment if you want to use test without ensemble
-    i=0
-    for ALPHABETS in Log_Alphabets_Test:
-    
-    
-        embeddingStrategy.getSet(expTRSet, ALPHABETS)
-        TRembeddingMatrix = np.asarray(embeddingStrategy._embeddedSet)
-        TRpatternID = embeddingStrategy._embeddedIDs
-    
-        embeddingStrategy.getSet(expVSSet, ALPHABETS)
-        VSembeddingMatrix = np.asarray(embeddingStrategy._embeddedSet)
-        VSpatternID = embeddingStrategy._embeddedIDs
-    
-        #Resorting matrix for consistency with dataset        
-        TRorderID = np.asarray([TRpatternID.index(x) for x in dataTR.indices])
-        VSorderID = np.asarray([VSpatternID.index(x) for x in dataVS.indices])   
-    
-        TRMat = TRembeddingMatrix[TRorderID,:]
-        VSMat = VSembeddingMatrix[VSorderID,:]        
-    
-        #Feature Selection                  
-        #bounds_GA2, CXPB_GA2, MUTPB_GA2, DE_Pop = FSsetup_DE(len(ALPHABETS), -1)
-        #FS_accDE= partial(FSfitness_DE,perfMetric = 'accuracy')
-        #TuningResults_GA2 = differential_evolution(FS_accDE, bounds_GA2, 
-        #                                           args=(TRMat,
-        #                                                 VSMat, 
-        #                                                 dataTR.labels, 
-        #                                                 dataVS.labels),
-        #                                                 maxiter=100, init=DE_Pop, 
-        #                                                 recombination=CXPB_GA2,
-        #                                                 mutation=MUTPB_GA2, 
-        #                                                 workers=-1, 
-        #                                                 polish=False, 
-        #                                                 updating='deferred')
-        
-        #best_GA2 = [round(i) for i in TuningResults_GA2.x]
-        #print("Selected {}/{} feature".format(sum(np.asarray(best_GA2)==1), len(best_GA2)))
-        
-        #Embedding with best alphabet
-        #mask = np.array(best_GA2,dtype=bool)
-        classifier = KNN()
-        classifier.fit(TRMat, dataTR.labels)
-        #predictedVSmask=classifier.predict(VSMat[:, mask])
-        
-        #accuracyVS = sum(predictedVSmask==np.asarray(dataVS.labels))/len(dataVS.labels)
-        #print("Accuracy on VS with global alphabet: {}".format(accuracyVS))
-    
-        #Embedding TS with best alphabet
-        #ALPHABET = np.asarray(ALPHABETS,dtype = object)[mask].tolist()
-        embeddingStrategy.getSet(expTSSet, ALPHABETS)
-        TSembeddingMatrix = np.asarray(embeddingStrategy._embeddedSet)
-        TSpatternID = embeddingStrategy._embeddedIDs   
-        TSorderID = np.asarray([TSpatternID.index(x) for x in dataTS.indices]) 
-        TSMat = TSembeddingMatrix[TSorderID,:]
-        
-        predictedTS=classifier.predict(TSMat)
-        accuracyTS = sum(predictedTS==np.asarray(dataTS.labels))/len(dataTS.labels)
-        print("The accuracy on the TS with the best alphabet of the {}° generation is {} ".format(i,accuracyTS))
-        i=i+1
-        '''
     t_test = time.time() - clock_test
     print('Training Time: ', t_training, 'Test Time: ', t_test)
     print("################ END ####################")
